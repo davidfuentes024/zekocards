@@ -1,0 +1,127 @@
+/* ============================================================
+   ZEKOCARDS · DESIGN TOKENS
+   The single source of truth for colour, type, space, motion.
+   Nothing in the app may hardcode a colour or a radius.
+   ============================================================ */
+
+:root {
+	/* --- Core palette (immutable brand identity) --- */
+	--mint: #f2faef; /* Menta         */
+	--aqua: #a7dadc; /* Isla Acuática */
+	--wedge: #447a9c; /* Wedgewood     */
+	--cello: #1d3658; /* Cello         */
+
+	/* --- Derived tints (mixed strictly from the four above) --- */
+	--mint-deep: #e4f1e0;
+	--mint-shadow: #d6e7d4;
+	--aqua-soft: #cfeaeb;
+	--aqua-deep: #7fc3c6;
+	--wedge-soft: #6d9cb8;
+	--wedge-deep: #35617e;
+	--cello-soft: #2c4c78;
+	--cello-ink: #12233a;
+
+	/* --- Hanko vermilion: the ONLY non-palette hue.
+	       Reserved for the seal mark + error state. Never decorative. --- */
+	--hanko: #c4573f;
+	--hanko-soft: #e0a294;
+
+	/* --- Semantic --- */
+	--bg: var(--mint);
+	--bg-raised: #ffffff;
+	--bg-sunken: var(--mint-deep);
+	--surface-line: var(--mint-shadow);
+	--ink: var(--cello);
+	--ink-strong: var(--cello-ink);
+	--ink-muted: #5b7893;
+	--ink-invert: var(--mint);
+	--accent: var(--wedge);
+	--accent-quiet: var(--aqua);
+	--ok: var(--wedge);
+	--ok-bg: var(--aqua-soft);
+	--bad: var(--hanko);
+	--bad-bg: #f7e6e1;
+
+	/* --- Type --- */
+	--font-ui: 'Zen Kaku Gothic New', ui-sans-serif, system-ui, sans-serif;
+	--font-display: 'Zen Maru Gothic', var(--font-ui);
+	--font-jp: 'Zen Maru Gothic', 'Hiragino Sans', 'Yu Gothic', sans-serif;
+	--font-mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+	--fs-2xs: 0.6875rem;
+	--fs-xs: 0.78rem;
+	--fs-sm: 0.875rem;
+	--fs-md: 1rem;
+	--fs-lg: 1.19rem;
+	--fs-xl: 1.5rem;
+	--fs-2xl: 2rem;
+	--fs-3xl: 2.75rem;
+	--fs-4xl: 3.9rem;
+	--fs-kana: 4.5rem;
+
+	--lh-tight: 1.12;
+	--lh-snug: 1.35;
+	--lh-body: 1.62;
+
+	--tracking-wide: 0.14em;
+	--tracking-caps: 0.18em;
+
+	/* --- Space (4px base) --- */
+	--s-1: 0.25rem;
+	--s-2: 0.5rem;
+	--s-3: 0.75rem;
+	--s-4: 1rem;
+	--s-5: 1.5rem;
+	--s-6: 2rem;
+	--s-7: 3rem;
+	--s-8: 4rem;
+	--s-9: 6rem;
+
+	/* --- Shape --- */
+	--r-xs: 4px;
+	--r-sm: 8px;
+	--r-md: 14px;
+	--r-lg: 22px;
+	--r-xl: 32px;
+	--r-full: 999px;
+
+	--border: 1.5px solid var(--surface-line);
+	--border-ink: 2px solid var(--cello);
+
+	/* --- Elevation: soft, paper-like, never neon --- */
+	--sh-1: 0 1px 2px rgba(29, 54, 88, 0.06), 0 2px 6px rgba(29, 54, 88, 0.05);
+	--sh-2: 0 2px 4px rgba(29, 54, 88, 0.07), 0 8px 20px rgba(29, 54, 88, 0.08);
+	--sh-3: 0 6px 12px rgba(29, 54, 88, 0.09), 0 20px 44px rgba(29, 54, 88, 0.12);
+	--sh-inset: inset 0 2px 0 rgba(255, 255, 255, 0.6);
+	--sh-press: inset 0 3px 8px rgba(29, 54, 88, 0.14);
+
+	/* --- Motion --- */
+	--t-fast: 130ms;
+	--t-base: 240ms;
+	--t-slow: 480ms;
+	--t-lazy: 900ms;
+	--ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+	--ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+	--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+	/* --- Layout --- */
+	--wrap: 1180px;
+	--wrap-narrow: 780px;
+	--header-h: 68px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:root {
+		--t-fast: 1ms;
+		--t-base: 1ms;
+		--t-slow: 1ms;
+		--t-lazy: 1ms;
+	}
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.001ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.001ms !important;
+	}
+}

@@ -1,0 +1,276 @@
+/* ============================================================
+   ZEKOCARDS · COMPONENT CLASSES
+   Reusable primitives. Components must consume these, never
+   redefine colour values locally.
+   ============================================================ */
+
+/* ---------- Panel (washi sheet) ---------- */
+.panel {
+	position: relative;
+	background: var(--bg-raised);
+	border: var(--border);
+	border-radius: var(--r-lg);
+	box-shadow: var(--sh-1);
+	padding: var(--s-5);
+}
+
+.panel--sunken {
+	background: var(--bg-sunken);
+	box-shadow: none;
+}
+
+.panel--quiet {
+	background: color-mix(in srgb, var(--bg-raised) 74%, transparent);
+	backdrop-filter: blur(6px);
+}
+
+.panel--edge {
+	border-left: 5px solid var(--aqua);
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+	--btn-bg: var(--wedge);
+	--btn-fg: var(--mint);
+	--btn-bd: var(--wedge);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--s-2);
+	padding: 0.65em 1.35em;
+	font-family: var(--font-display);
+	font-size: var(--fs-sm);
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	color: var(--btn-fg);
+	background: var(--btn-bg);
+	border: 2px solid var(--btn-bd);
+	border-radius: var(--r-full);
+	cursor: pointer;
+	transition:
+		transform var(--t-fast) var(--ease-spring),
+		box-shadow var(--t-fast) var(--ease-out),
+		background var(--t-fast) var(--ease-out),
+		color var(--t-fast) var(--ease-out);
+	box-shadow: var(--sh-1);
+	white-space: nowrap;
+}
+
+.btn:hover {
+	transform: translateY(-2px);
+	box-shadow: var(--sh-2);
+}
+
+.btn:active {
+	transform: translateY(1px) scale(0.985);
+	box-shadow: var(--sh-press);
+}
+
+.btn:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+	transform: none;
+	box-shadow: none;
+}
+
+.btn--ghost {
+	--btn-bg: transparent;
+	--btn-fg: var(--wedge-deep);
+	--btn-bd: var(--surface-line);
+	box-shadow: none;
+}
+.btn--ghost:hover {
+	--btn-bd: var(--aqua-deep);
+	background: var(--aqua-soft);
+}
+
+.btn--soft {
+	--btn-bg: var(--aqua-soft);
+	--btn-fg: var(--cello);
+	--btn-bd: var(--aqua-soft);
+}
+.btn--soft:hover {
+	--btn-bg: var(--aqua);
+}
+
+.btn--ink {
+	--btn-bg: var(--cello);
+	--btn-fg: var(--mint);
+	--btn-bd: var(--cello);
+}
+
+.btn--lg {
+	font-size: var(--fs-md);
+	padding: 0.8em 1.7em;
+}
+
+.btn--sm {
+	font-size: var(--fs-xs);
+	padding: 0.45em 0.95em;
+}
+
+.btn--block {
+	width: 100%;
+}
+
+/* ---------- Chips / toggles ---------- */
+.chip {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--s-2);
+	padding: 0.32em 0.8em;
+	border-radius: var(--r-full);
+	border: var(--border);
+	background: var(--bg-raised);
+	font-size: var(--fs-xs);
+	font-weight: 600;
+	color: var(--ink-muted);
+	cursor: pointer;
+	transition:
+		background var(--t-fast) var(--ease-out),
+		color var(--t-fast) var(--ease-out),
+		border-color var(--t-fast) var(--ease-out),
+		transform var(--t-fast) var(--ease-spring);
+}
+
+.chip:hover {
+	transform: translateY(-1px);
+	border-color: var(--aqua-deep);
+}
+
+.chip[aria-pressed='true'],
+.chip.is-on {
+	background: var(--cello);
+	border-color: var(--cello);
+	color: var(--mint);
+}
+
+.chip--static {
+	cursor: default;
+}
+.chip--static:hover {
+	transform: none;
+}
+
+/* ---------- Tag ---------- */
+.tag {
+	display: inline-block;
+	padding: 0.15em 0.6em;
+	border-radius: var(--r-xs);
+	background: var(--aqua-soft);
+	color: var(--wedge-deep);
+	font-size: var(--fs-2xs);
+	font-weight: 700;
+	letter-spacing: var(--tracking-wide);
+	text-transform: uppercase;
+}
+
+.tag--ink {
+	background: var(--cello);
+	color: var(--mint);
+}
+.tag--warn {
+	background: var(--bad-bg);
+	color: var(--bad);
+}
+
+/* ---------- Fields ---------- */
+.field {
+	display: block;
+	width: 100%;
+	padding: 0.7em 1em;
+	background: var(--bg-raised);
+	border: 2px solid var(--surface-line);
+	border-radius: var(--r-md);
+	transition:
+		border-color var(--t-fast) var(--ease-out),
+		box-shadow var(--t-fast) var(--ease-out);
+}
+
+.field::placeholder {
+	color: color-mix(in srgb, var(--ink-muted) 60%, transparent);
+}
+
+.field:focus {
+	outline: none;
+	border-color: var(--wedge);
+	box-shadow: 0 0 0 4px var(--aqua-soft);
+}
+
+.field--answer {
+	font-family: var(--font-display);
+	font-size: var(--fs-xl);
+	text-align: center;
+	letter-spacing: 0.06em;
+	padding-block: 0.5em;
+}
+
+.field--ok {
+	border-color: var(--ok);
+	box-shadow: 0 0 0 4px var(--ok-bg);
+}
+.field--bad {
+	border-color: var(--bad);
+	box-shadow: 0 0 0 4px var(--bad-bg);
+}
+
+.label {
+	display: block;
+	font-size: var(--fs-2xs);
+	font-weight: 700;
+	letter-spacing: var(--tracking-caps);
+	text-transform: uppercase;
+	color: var(--ink-muted);
+	margin-bottom: var(--s-2);
+}
+
+/* ---------- Divider ---------- */
+.rule {
+	height: 1px;
+	border: 0;
+	background: var(--surface-line);
+	margin-block: var(--s-5);
+}
+
+/* ---------- Grid helpers ---------- */
+.grid-auto {
+	display: grid;
+	gap: var(--s-4);
+	grid-template-columns: repeat(auto-fill, minmax(var(--min, 200px), 1fr));
+}
+
+/* ---------- Meter ---------- */
+.meter {
+	height: 8px;
+	border-radius: var(--r-full);
+	background: var(--mint-shadow);
+	overflow: hidden;
+}
+.meter > i {
+	display: block;
+	height: 100%;
+	background: var(--wedge);
+	border-radius: inherit;
+	transition: width var(--t-slow) var(--ease-out);
+}
+.meter--aqua > i {
+	background: var(--aqua-deep);
+}
+
+/* ---------- Scroll area ---------- */
+.scroll {
+	overflow: auto;
+	scrollbar-width: thin;
+	scrollbar-color: var(--aqua-deep) transparent;
+}
+.scroll::-webkit-scrollbar {
+	width: 9px;
+	height: 9px;
+}
+.scroll::-webkit-scrollbar-thumb {
+	background: var(--aqua-deep);
+	border-radius: var(--r-full);
+}
+.scroll::-webkit-scrollbar-track {
+	background: transparent;
+}
