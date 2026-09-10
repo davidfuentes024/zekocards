@@ -740,6 +740,8 @@ const RAW4 = [
 
 /* ---------- extended vocabulary lives in dictionary-extra.js ---------- */
 import { EXTRA_ROWS } from './dictionary-extra.js';
+/* ---------- the 4000-word frequency core lives in dictionary-core.js ---------- */
+import { CORE_ROWS } from './dictionary-core.js';
 
 /* ---------- parse & export ---------- */
 import { tokenize } from './kana.js';
@@ -779,7 +781,7 @@ function dedupe(rows) {
 	});
 }
 
-export const WORDS = dedupe([...RAW, ...RAW2, ...RAW3, ...RAW4, ...EXTRA_ROWS]).map(parse);
+export const WORDS = dedupe([...RAW, ...RAW2, ...RAW3, ...RAW4, ...EXTRA_ROWS, ...CORE_ROWS]).map(parse);
 
 export const TAGS = [...new Set(WORDS.flatMap((w) => w.tags))].sort();
 
@@ -796,6 +798,7 @@ export const TAG_LABELS = {
 	colour: 'Colours',
 	adjective: 'Adjectives',
 	verb: 'Verbs',
+	adverb: 'Adverbs',
 	phrase: 'Phrases',
 	greeting: 'Greetings',
 	number: 'Numbers',
@@ -815,7 +818,8 @@ export const TAG_LABELS = {
 	n5: 'JLPT N5',
 	n4: 'JLPT N4',
 	n3: 'JLPT N3',
-	n2: 'JLPT N2'
+	n2: 'JLPT N2',
+	n1: 'JLPT N1'
 };
 
 /** Words whose every sound is inside `allowedIds`. Neutral marks are free. */

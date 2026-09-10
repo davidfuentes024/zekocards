@@ -25,7 +25,8 @@ not a gamified app.
 | No network dependency | The app must keep working with the network switched off. |
 | English UI, Japanese subject | Interface language is English; the content taught is Japanese. |
 | Nothing outside the selection | No exercise may ever show a sound or word the learner has not selected. |
-| No elimination answers | Never 3–4 multiple-choice options. Answers are typed, or picked from **every** selected sound at once. |
+| No elimination answers | Never a shortlist. The answer pad always shows **every symbol in the script**, reshuffled every question. |
+| Answers are Japanese | Answers are given as kana, or as an English meaning. **Romaji is never a valid answer** — typing "ka" trains the wrong skill. |
 
 ---
 

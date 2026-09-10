@@ -6,6 +6,10 @@ not be touched** when adding features in future sessions.
 
 ---
 
+> A Flutter port for Android and iOS lives in `../japones-mobile`. It shares
+> this repo's identity and data — its asset tables are exported straight out of
+> `src/lib/data/` — and adds five harder drills on top of the nine here.
+
 ## 1. The core, in one paragraph
 
 The learner selects sounds on the **Cards** page. That selection
@@ -43,8 +47,12 @@ src/
   lib/
     data/
       kana.js       ⚠ CORE     128 sounds, 33 columns, 4 groups, tokenizer
-      dictionary.js ⚠ CORE     688 words, parsed into sound ids
-      kanji.js                 134 kanji with kana readings + examples
+      dictionary.js ⚠ CORE     N5 base list, parsed into sound ids
+      dictionary-extra.js      N4 → N2 vocabulary (same row format)
+      dictionary-core.js       the 4000-word frequency core (generated)
+      kanji.js                 N5 kanji + merge/dedupe of the extra files
+      kanji-extra.js           N4 → N3 kanji
+      kanji-core.js            the 1000 most frequent kanji (generated)
       games.js                 the drill roster (id, title, icon, needs)
     stores/
       persisted.js  ⚠ CORE     localStorage-backed writable + Set bridge
@@ -68,7 +76,7 @@ src/
     /cards                     the deck — selection + card detail drawer
     /practice                  training hall
     /practice/[game]           drill host (registry → component)
-    /dictionary                688-word dictionary
+    /dictionary                4482-word dictionary
     /kanji                     kanji browser
     /progress                  stats, mastery map, anchors, settings, export
 ```
@@ -112,17 +120,24 @@ refuses to repeat the last few items.
 
 ## 5. The drills
 
-| id | Component | Question → Answer | Anti-guessing device |
+| id | Component | Question → Answer | Why it cannot be gamed |
 |---|---|---|---|
-| `recall` | Recall.svelte | kana → typed romaji | forced re-type of the correct answer after a miss |
-| `produce` | Produce.svelte | romaji → tap kana | pad shows **every** selected sound |
-| `words` | WordRead.svelte | whole word → typed reading | words limited to the selection |
-| `build` | WordBuild.svelte | English + romaji → spell in kana | wrong keys refuse to land |
-| `listen` | Listen.svelte | audio → typed reading | nothing shown until answered |
-| `lookalike` | LookAlike.svelte | confusable kana → typed romaji | side-by-side comparison after a miss |
-| `anchor` | Anchor.svelte | the learner's own note → the sound | the only clue is their own writing |
-| `speed` | Speed.svelte | 60-second typed sprint | personal record kept locally |
-| `kanji` | KanjiDrill.svelte | kanji → meaning or reading | readings typed, never chosen |
+| `blind` | Blind.svelte | audio only → tap the symbol | nothing is written on screen; pad holds every symbol in the script, reshuffled each question |
+| `bridge` | Bridge.svelte | symbol in one script → same sound in the other | no romaji at any point; full shuffled pad |
+| `dictation` | Dictation.svelte | spoken word → spell it kana by kana | wrong keys refuse to land; full shuffled pad |
+| `build` | WordBuild.svelte | English meaning → spell it in kana | only the meaning is given; full shuffled pad |
+| `words` | WordRead.svelte | word in kana → type the meaning in English | comprehension, not transcription |
+| `lookalike` | LookAlike.svelte | one of a confusable family → produce it in the other script | the family is shown unlabelled; answering needs the actual identity |
+| `anchor` | Anchor.svelte | the learner's own note → tap the symbol | the only clue is their own handwriting |
+| `speed` | Speed.svelte | 60 s of audio → symbol | no time to reason it out |
+| `kanji` | KanjiDrill.svelte | meaning in English / reading built in kana | readings are spelled on the full grid, never romanised |
+
+**The two rules every drill obeys**
+
+1. **Prompts** only ever come from the learner's selection.
+2. **Distractors** are the entire script, always — never the selection. A
+   symbol can therefore never be identified by elimination, by position, or by
+   the order of the pad.
 
 **Adding a drill:** create `src/lib/games/X.svelte` using `createDrill()` +
 `DrillFrame`, add an entry to `src/lib/data/games.js`, register it in
@@ -156,7 +171,12 @@ topic rails, tab boards) rather than vertical stacks.
    silently erases every existing learner's progress. If the shape must change,
    bump to `v2` **and migrate**, never overwrite.
 3. The no-multiple-choice rule. Answer pads show the full selected set.
-4. The forced-repetition loop: a miss must cost a repetition, not a life.
+4. The forced-repetition loop: a miss must cost a repetition, not a life. A
+   wrong answer never advances the question — the correct symbol must still be
+   produced.
+4b. **No romaji as an answer, ever.** Romaji appears only as reference text in
+   the dictionary and as the emergency fallback in `SoundPrompt` when the
+   browser has no Japanese voice at all. Typing "ka" is not reading Japanese.
 5. Local-only storage. No account, no sync, no telemetry, no third-party script.
 6. Static output. The app must keep building with `adapter-static` and running
    from `file:`-adjacent hosting with no server.
@@ -172,23 +192,40 @@ topic rails, tab boards) rather than vertical stacks.
 **Safe to extend**
 
 - More words in `dictionary.js` (same row format; the parser handles the rest).
-- More kanji in `kanji.js`.
+  The generated `dictionary-core.js` is merged *behind* it, so a hand-written
+  row always wins the dedupe.
+- More kanji in `kanji.js`, merged the same way ahead of `kanji-core.js`.
 - More confusion sets in `CONFUSION_SETS`.
 - More drills (see above), more presets on the Cards page, more icons.
 - More scenery components, as long as they are pure CSS.
 
 ---
 
+## 6b. Open proposals
+
+Two problems are documented but deliberately **not** implemented yet:
+
+- [`AUDIO.md`](./AUDIO.md) — why `speechSynthesis` sounds clipped and thin, and
+  four routes to replacing it (pre-rendered Opus sprites are the recommended
+  one). **Every audio-first drill depends on this being solved properly.**
+- [`PRONUNCIATION.md`](./PRONUNCIATION.md) — how to help learners whose first
+  language is not English, ordered from cheapest to most speculative.
+
 ## 7. Known limits / good next steps
 
-- **Speech** depends on the browser having a `ja-JP` voice. The Ear Training
-  drill says so and stays usable when there is none. A bundled audio pack would
-  remove the dependency (large, but offline-true).
+- **Speech** depends on the browser having a `ja-JP` voice. `SoundPrompt`
+  detects this and falls back to showing the reading, because otherwise the
+  audio-first drills would be impossible rather than hard. See `AUDIO.md`.
 - **Stroke order** is not taught. A CSS/SVG stroke-order animation per kana is
   the most valuable missing feature; `zk-stroke-draw` in `animations.css` is
   already there for it.
 - **Import** of an exported JSON file is not implemented (export is).
-- The dictionary is hand-written; it can grow indefinitely, and every new word
-  automatically becomes available to the drills that can reach it.
+- The dictionary is now two layers: a hand-written topical list (curated tags,
+  first pick in the dedupe) and a generated frequency core — the 4000 most-used
+  words, ranked against a corpus list and banded by JLPT level. 4482 words
+  total. Every new word automatically becomes available to the drills that can
+  reach it. `kanji.js` is layered the same way and holds 1016 characters, the
+  1000 most frequent plus the hand-written extras.
+- The generators live in `../japones-mobile/tool/`.
 - Kanji progress is tracked separately (`kanji-stats`) and is not part of the
   kana mastery map.
