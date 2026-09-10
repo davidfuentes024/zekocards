@@ -144,6 +144,8 @@ const RAW = [
 	'花見|flower viewing|-|はなみ|-|culture|花見 はなみ = cherry blossom viewing'
 ];
 
+import { EXTRA_KANJI_ROWS } from './kanji-extra.js';
+
 function parse(row, i) {
 	const [k, meaning, on, kun, strokes, level, ex] = row.split('|');
 	return {
@@ -166,5 +168,19 @@ function parse(row, i) {
 	};
 }
 
-export const KANJI = RAW.filter((r) => r.split('|')[0].length === 1).map(parse);
-export const KANJI_LEVELS = [...new Set(KANJI.map((k) => k.level))].sort();
+/* base list (N5) + the extended N4/N3 file, first definition wins */
+const ALL_ROWS = [...RAW, ...EXTRA_KANJI_ROWS].filter((r) => r.split('|')[0].length === 1);
+
+const seen = new Set();
+export const KANJI = ALL_ROWS.filter((r) => {
+	const k = r.split('|')[0];
+	if (seen.has(k)) return false;
+	seen.add(k);
+	return true;
+}).map(parse);
+
+const ORDER = { N5: 0, N4: 1, N3: 2, N2: 3, N1: 4 };
+export const KANJI_LEVELS = [...new Set(KANJI.map((k) => k.level))].sort(
+	(a, b) => (ORDER[a] ?? 9) - (ORDER[b] ?? 9)
+);
+export const KANJI_BY_LEVEL = (level) => KANJI.filter((k) => k.level === level);

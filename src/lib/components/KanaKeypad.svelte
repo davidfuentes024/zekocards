@@ -1,10 +1,12 @@
 <script>
 	/* ============================================================
-	   The anti-guessing answer pad.
-	   It always shows EVERY sound the learner has selected — never a
-	   shortlist of four. Elimination is impossible by construction.
+	   The answer pad.
+	   It shows EVERY symbol of the script being studied — not the
+	   learner's selection — and reshuffles on every question, so
+	   position, order and grouping carry no information at all.
+	   No labels, no romaji, no columns. Only symbols.
 	   ============================================================ */
-	import { COLUMN_BY_ID } from '$lib/data/kana.js';
+	import { shuffle } from '$lib/utils/random.js';
 
 	let {
 		sounds = [],
@@ -12,116 +14,122 @@
 		disabled = false,
 		markedCorrect = null,
 		markedWrong = null,
+		dim = [],
+		shuffleKey = 0,
+		size = 'md',
 		onPick = () => {}
 	} = $props();
 
-	const groups = $derived(
-		[...new Set(sounds.map((s) => s.column))].map((cid) => ({
-			column: COLUMN_BY_ID.get(cid),
-			items: sounds.filter((s) => s.column === cid)
-		}))
-	);
+	const keys = $derived.by(() => {
+		shuffleKey;
+		return shuffle(sounds);
+	});
+
+	const dimSet = $derived(new Set(dim));
 </script>
 
-<div class="pad scroll" role="group" aria-label="All available sounds">
-	{#each groups as g (g.column.id)}
-		<div class="grp">
-			<span class="grp-label">{g.column.label}</span>
-			<div class="keys">
-				{#each g.items as s (s.id)}
-					<button
-						class="key jp"
-						class:ok={markedCorrect === s.id}
-						class:bad={markedWrong === s.id}
-						{disabled}
-						onclick={() => onPick(s)}
-					>
-						{script === 'hiragana' ? s.h : s.k}
-					</button>
-				{/each}
-			</div>
-		</div>
+<div class="pad pad--{size} scroll" role="group" aria-label="Every symbol in this script">
+	{#each keys as s (s.id)}
+		<button
+			class="key jp"
+			class:wide={(script === 'hiragana' ? s.h : s.k).length > 1}
+			class:ok={markedCorrect === s.id}
+			class:bad={markedWrong === s.id}
+			class:dim={dimSet.has(s.id)}
+			{disabled}
+			onclick={() => onPick(s)}
+		>
+			{script === 'hiragana' ? s.h : s.k}
+		</button>
 	{/each}
 </div>
 
 <style>
 	.pad {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--s-3) var(--s-4);
-		max-height: 42vh;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+		gap: 6px;
+		max-height: 46vh;
 		padding: var(--s-3);
-		background: var(--bg-sunken);
-		border-radius: var(--r-lg);
-		border: var(--border);
+		background: var(--bg-tint);
+		border: 2px solid var(--surface-line);
+		border-radius: var(--r-tile);
 	}
 
-	.grp {
-		display: flex;
-		flex-direction: column;
-		gap: var(--s-1);
+	.pad--sm {
+		grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+		max-height: 34vh;
 	}
 
-	.grp-label {
-		font-size: var(--fs-2xs);
-		font-weight: 700;
-		letter-spacing: var(--tracking-caps);
-		color: var(--ink-muted);
-	}
-
-	.keys {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 4px;
+	.pad--lg {
+		grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
 	}
 
 	.key {
-		width: 46px;
-		height: 46px;
+		aspect-ratio: 1;
 		display: grid;
 		place-items: center;
-		font-size: 1.4rem;
+		font-size: 1.5rem;
 		background: var(--bg-raised);
 		border: 2px solid var(--surface-line);
 		border-radius: var(--r-sm);
+		box-shadow: 0 3px 0 var(--surface-line);
 		color: var(--ink-strong);
 		cursor: pointer;
 		transition:
-			transform var(--t-fast) var(--ease-spring),
+			transform 90ms var(--ease-out),
+			box-shadow 90ms var(--ease-out),
 			background var(--t-fast) var(--ease-out),
 			border-color var(--t-fast) var(--ease-out);
 	}
 
+	/* contracted sounds are two glyphs — keep them on one line */
+	.key.wide {
+		font-size: 1.02rem;
+		letter-spacing: -0.04em;
+	}
+
 	.key:hover:not(:disabled) {
-		transform: translateY(-2px);
-		border-color: var(--wedge);
 		background: var(--aqua-soft);
+		border-color: var(--aqua-deep);
+	}
+
+	.key:active:not(:disabled) {
+		transform: translateY(3px);
+		box-shadow: 0 0 0 var(--surface-line);
 	}
 
 	.key:disabled {
 		cursor: default;
-		opacity: 0.75;
+	}
+
+	.key.dim {
+		opacity: 0.35;
 	}
 
 	.key.ok {
 		background: var(--ok-bg);
 		border-color: var(--ok);
+		box-shadow: 0 3px 0 var(--ok);
 		animation: zk-pop var(--t-base) var(--ease-spring);
 	}
 	.key.bad {
 		background: var(--bad-bg);
 		border-color: var(--bad);
+		box-shadow: 0 3px 0 var(--bad);
 		animation: zk-shake 360ms var(--ease-in-out);
 	}
 
 	@media (max-width: 720px) {
-		.key {
-			width: 40px;
-			height: 40px;
-			font-size: 1.2rem;
-		}
 		.pad {
-			max-height: 38vh;
+			grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+			max-height: 40vh;
+		}
+		.key {
+			font-size: 1.25rem;
+		}
+		.key.wide {
+			font-size: 0.85rem;
 		}
 	}
 </style>

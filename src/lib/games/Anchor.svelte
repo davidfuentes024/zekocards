@@ -1,32 +1,32 @@
 <script>
-	/* Your own words, quizzed back at you.
-	   Write "ねこ – the cat's tail" on the ね card and this drill will
-	   show your note and ask for the character it belongs to. */
+	/* Your own note is the only clue, and the answer is the symbol itself. */
 	import DrillFrame from '$lib/components/DrillFrame.svelte';
-	import RomajiInput from '$lib/components/RomajiInput.svelte';
+	import KanaKeypad from '$lib/components/KanaKeypad.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import { anchors } from '$lib/stores/associations.js';
-	import { SOUND_BY_ID } from '$lib/data/kana.js';
+	import { SOUND_BY_ID, scriptSounds, glyphOf } from '$lib/data/kana.js';
 	import { selectedSounds, script } from '$lib/stores/selection.js';
 	import { stats, weightOf } from '$lib/stores/progress.js';
 	import { createDrill } from '$lib/utils/drill.svelte.js';
 	import { nextPrompt } from '$lib/utils/random.js';
-	import { checkSound } from '$lib/utils/answer.js';
+	import { say } from '$lib/utils/speech.js';
 
 	const drill = createDrill({ goal: 20 });
 
 	let current = $state(null);
-	let value = $state('');
-	let status = $state(null);
-	let revealed = $state(false);
-	let echoing = $state(false);
+	let wrongId = $state(null);
+	let okId = $state(null);
+	let locked = $state(false);
+	let missed = $state(false);
+	let round = $state(0);
 
+	const pad = $derived(scriptSounds($script));
 	const pool = $derived(
 		Object.keys($anchors)
 			.map((id) => SOUND_BY_ID.get(id))
 			.filter(Boolean)
 			.filter((s) => $selectedSounds.has(s.id))
-			.filter((s) => ($script === 'hiragana' ? s.h : s.k))
+			.filter((s) => glyphOf(s, $script))
 	);
 
 	function next() {
@@ -34,10 +34,11 @@
 		current = nextPrompt(pool, (s) => weightOf(s.id, $stats), drill.recent, 3);
 		drill.remember(current);
 		drill.mark();
-		value = '';
-		status = null;
-		revealed = false;
-		echoing = false;
+		wrongId = null;
+		okId = null;
+		locked = false;
+		missed = false;
+		round += 1;
 		drill.clearFeedback();
 	}
 
@@ -45,28 +46,22 @@
 		if (!current && pool.length) next();
 	});
 
-	function submit() {
-		if (!current) return;
-		const ok = checkSound(value, current);
-		if (echoing) {
-			if (ok) next();
-			else {
-				status = 'bad';
-				value = '';
-			}
+	function pick(s) {
+		if (!current || locked) return;
+		if (s.r === current.r) {
+			okId = s.id;
+			locked = true;
+			if (!missed) drill.answer(current.id, true);
+			say(glyphOf(current, $script));
+			setTimeout(next, 520);
 			return;
 		}
-		drill.answer(current.id, ok);
-		if (ok) {
-			status = 'ok';
-			revealed = true;
-			setTimeout(next, 520);
-		} else {
-			status = 'bad';
-			revealed = true;
-			echoing = true;
-			value = '';
+		if (!missed) {
+			missed = true;
+			drill.answer(current.id, false);
 		}
+		wrongId = s.id;
+		setTimeout(() => (wrongId = null), 420);
 	}
 
 	const note = $derived(current ? $anchors[current.id] : null);
@@ -75,7 +70,7 @@
 <DrillFrame
 	title="Anchor Recall"
 	jp="連想"
-	hint="Your own associations, replayed. The memory you wrote is the only clue you get."
+	hint="Your own association, played back with the symbol removed."
 	asked={drill.asked}
 	correct={drill.correct}
 	streak={drill.streak}
@@ -84,80 +79,60 @@
 	feedback={drill.feedback}
 >
 	{#if current}
-		<div class="prompt">
-			<span class="tag">Which sound did you anchor to this?</span>
-			<blockquote>
-				<Icon name="brush" size={20} />
-				<div>
-					<strong>{note.word}</strong>
-					{#if note.note}<p>{note.note}</p>{/if}
-				</div>
-			</blockquote>
-			{#if revealed}
-				<div class="answer jp">
-					{$script === 'hiragana' ? current.h : current.k}
-					<small>{current.r}</small>
-				</div>
-			{/if}
-		</div>
-		<RomajiInput bind:value status={status} onsubmit={submit} />
+		<blockquote>
+			<Icon name="brush" size={22} />
+			<div>
+				<strong>{note.word}</strong>
+				{#if note.note}<p>{note.note}</p>{/if}
+			</div>
+		</blockquote>
+
+		<KanaKeypad
+			sounds={pad}
+			script={$script}
+			shuffleKey={round}
+			markedCorrect={okId}
+			markedWrong={wrongId}
+			disabled={locked}
+			onPick={pick}
+		/>
 	{:else}
 		<div class="empty">
-			<p class="lede">
-				You have not written any anchors yet for the sounds you are studying.
-			</p>
+			<p class="lede">You have not written any anchors for the sounds you are studying.</p>
 			<p class="muted">
-				Open a card on the Cards page and write the word that makes the shape stick. Those notes
-				become this drill.
+				Open a card, write the word that makes the shape stick, and it becomes this drill.
 			</p>
-			<a class="btn" href="/cards"><Icon name="cards" size={17} /> Go write some anchors</a>
+			<a class="btn" href="/cards"><Icon name="cards" size={18} /> Go write some anchors</a>
 		</div>
 	{/if}
 </DrillFrame>
 
 <style>
-	.prompt {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: var(--s-3);
-		margin-bottom: var(--s-5);
-	}
 	blockquote {
 		display: flex;
 		gap: var(--s-3);
 		align-items: flex-start;
-		margin: 0;
-		max-width: min(46ch, 100%);
-		padding: var(--s-4);
-		background: var(--bg-sunken);
-		border-left: 5px solid var(--aqua);
+		margin: 0 auto var(--s-5);
+		max-width: min(48ch, 100%);
+		padding: var(--s-4) var(--s-5);
+		background: var(--bg-tint);
+		border: 3px solid var(--surface-line);
+		border-left: 8px solid var(--aqua);
 		border-radius: var(--r-md);
 		color: var(--ink);
 	}
 	blockquote strong {
 		font-family: var(--font-display);
-		font-size: var(--fs-xl);
+		font-size: var(--fs-2xl);
+		line-height: 1.15;
 	}
 	blockquote p {
 		font-size: var(--fs-sm);
 		color: var(--ink-muted);
 	}
-	.answer {
-		font-family: var(--font-jp);
-		font-size: var(--fs-2xl);
-		text-align: center;
-	}
-	.answer small {
-		display: block;
-		font-family: var(--font-ui);
-		font-size: var(--fs-xs);
-		color: var(--ink-muted);
-	}
 	.empty {
-		display: flex;
-		flex-direction: column;
+		display: grid;
 		gap: var(--s-3);
-		align-items: flex-start;
+		justify-items: flex-start;
 	}
 </style>

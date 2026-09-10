@@ -1,13 +1,15 @@
 <script>
-	/* Kanji, but always routed back through kana readings. */
+	/* Two ways in: meaning (typed in English) and reading (built in kana
+	   from the full grid — never romaji). */
 	import DrillFrame from '$lib/components/DrillFrame.svelte';
 	import RomajiInput from '$lib/components/RomajiInput.svelte';
+	import KanaKeypad from '$lib/components/KanaKeypad.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import { KANJI, KANJI_LEVELS } from '$lib/data/kanji.js';
+	import { scriptSounds, glyphOf } from '$lib/data/kana.js';
 	import { createDrill } from '$lib/utils/drill.svelte.js';
 	import { nextPrompt } from '$lib/utils/random.js';
-	import { checkMeaning, normalize } from '$lib/utils/answer.js';
-	import { romajiFromKana } from '$lib/utils/answer.js';
+	import { checkMeaning } from '$lib/utils/answer.js';
 	import { say } from '$lib/utils/speech.js';
 	import { persisted } from '$lib/stores/persisted.js';
 
@@ -20,9 +22,21 @@
 	let value = $state('');
 	let status = $state(null);
 	let revealed = $state(false);
-	let echoing = $state(false);
+	let built = $state('');
+	let nudge = $state(0);
+	let missed = $state(false);
+	let round = $state(0);
 
-	const pool = $derived(KANJI.filter((k) => k.level === level));
+	const pool = $derived(
+		KANJI.filter((k) => k.level === level).filter(
+			(k) => mode === 'meaning' || k.kun.length || k.on.length
+		)
+	);
+
+	/* readings: kun is hiragana, on is katakana — the drill follows suit */
+	const target = $derived(current ? (current.kun[0] ?? current.on[0] ?? '') : '');
+	const readingScript = $derived(current && current.kun.length ? 'hiragana' : 'katakana');
+	const pad = $derived(scriptSounds(readingScript));
 
 	function weight(k) {
 		const s = $kanjiStats[k.id];
@@ -38,19 +52,15 @@
 		value = '';
 		status = null;
 		revealed = false;
-		echoing = false;
+		built = '';
+		missed = false;
+		round += 1;
 		drill.clearFeedback();
 	}
 
 	$effect(() => {
 		if (!current && pool.length) next();
 	});
-
-	function readingOk(input) {
-		const n = normalize(input);
-		const all = [...current.on, ...current.kun].map((r) => normalize(romajiFromKana(r)));
-		return all.includes(n);
-	}
 
 	function score(ok) {
 		kanjiStats.update((all) => {
@@ -59,35 +69,53 @@
 		});
 	}
 
-	function submit() {
-		if (!current) return;
-		const ok = mode === 'meaning' ? checkMeaning(value, current.meaning) : readingOk(value);
-		if (echoing) {
-			if (ok) next();
-			else {
-				status = 'bad';
-				value = '';
-			}
-			return;
-		}
+	function submitMeaning() {
+		if (!current || revealed) return;
+		const ok = checkMeaning(value, current.meaning);
 		score(ok);
 		drill.answer([], ok);
+		status = ok ? 'ok' : 'bad';
 		revealed = true;
-		if (ok) {
-			status = 'ok';
-			setTimeout(next, 700);
+		say(current.kanji);
+		setTimeout(next, ok ? 900 : 2400);
+	}
+
+	function push(char) {
+		if (!current || revealed) return;
+		const attempt = built + char;
+		if (target.startsWith(attempt)) {
+			built = attempt;
+			if (built === target) {
+				score(!missed);
+				drill.answer([], !missed);
+				revealed = true;
+				say(current.kanji);
+				setTimeout(next, 1300);
+			}
 		} else {
-			status = 'bad';
-			echoing = true;
-			value = '';
+			missed = true;
+			nudge += 1;
+			drill.setFeedback('bad');
+			setTimeout(() => drill.clearFeedback(), 380);
 		}
+	}
+
+	function back() {
+		const chars = [...built];
+		chars.pop();
+		built = chars.join('');
+	}
+
+	function switchMode(m) {
+		mode = m;
+		current = null;
 	}
 </script>
 
 <DrillFrame
 	title="Kanji Grind"
 	jp="漢字"
-	hint="Readings are written in kana on purpose — every kanji answer is also kana practice."
+	hint="Meanings in English, readings in kana. Readings are spelled out on the full grid, never romanised."
 	asked={drill.asked}
 	correct={drill.correct}
 	streak={drill.streak}
@@ -95,17 +123,17 @@
 	goal={drill.goal}
 	feedback={drill.feedback}
 >
-	<div class="row modes">
+	<div class="modes">
 		{#each KANJI_LEVELS as l}
-			<button class="chip" aria-pressed={level === l} onclick={() => { level = l; current = null; }}>
+			<button class="tab" aria-pressed={level === l} onclick={() => { level = l; current = null; }}>
 				{l}
 			</button>
 		{/each}
 		<span class="sep"></span>
-		<button class="chip" aria-pressed={mode === 'meaning'} onclick={() => (mode = 'meaning')}>
+		<button class="tab" aria-pressed={mode === 'meaning'} onclick={() => switchMode('meaning')}>
 			Meaning
 		</button>
-		<button class="chip" aria-pressed={mode === 'reading'} onclick={() => (mode = 'reading')}>
+		<button class="tab" aria-pressed={mode === 'reading'} onclick={() => switchMode('reading')}>
 			Reading
 		</button>
 	</div>
@@ -114,53 +142,81 @@
 		<div class="prompt">
 			<button class="kanji jp" onclick={() => say(current.kanji)}>{current.kanji}</button>
 			<span class="tag">
-				{mode === 'meaning' ? 'What does it mean?' : 'Type any reading in romaji'}
+				{mode === 'meaning' ? 'What does it mean?' : `Spell the ${readingScript === 'hiragana' ? 'kun' : 'on'} reading`}
 			</span>
-			<span class="strokes">{current.strokes} strokes</span>
-
-			{#if revealed}
-				<div class="reveal">
-					<p><strong>{current.meaning}</strong></p>
-					<p class="jp readings">
-						<span>音 {current.on.join('・') || '—'}</span>
-						<span>訓 {current.kun.join('・') || '—'}</span>
-					</p>
-					<ul>
-						{#each current.examples as ex}
-							<li>
-								<span class="jp">{ex.word}</span>
-								<span class="jp muted">{ex.reading}</span>
-								<span class="muted">{ex.en}</span>
-							</li>
-						{/each}
-					</ul>
-				</div>
-			{/if}
 		</div>
 
-		<RomajiInput
-			bind:value
-			status={status}
-			onsubmit={submit}
-			placeholder={mode === 'meaning' ? 'english meaning…' : 'romaji reading…'}
-		/>
+		{#if mode === 'meaning'}
+			{#if revealed}
+				<div class="reveal" class:ok={status === 'ok'}>
+					<strong>{current.meaning}</strong>
+					<span class="jp">音 {current.on.join('・') || '—'} · 訓 {current.kun.join('・') || '—'}</span>
+				</div>
+			{/if}
+			<RomajiInput
+				bind:value
+				status={status}
+				onsubmit={submitMeaning}
+				placeholder="meaning in English…"
+				label="Meaning"
+				disabled={revealed}
+			/>
+		{:else}
+			<div class="slots" class:solved={revealed} class:nudge={nudge % 2 === 1}>
+				{#each Array([...target].length) as _, i}
+					<span class="slot jp" class:filled={i < [...built].length}>{[...built][i] ?? ''}</span>
+				{/each}
+			</div>
+
+			{#if revealed}
+				<p class="reveal ok">
+					<strong class="jp">{current.kanji} · {target}</strong>
+					<span>{current.meaning}</span>
+				</p>
+			{/if}
+
+			<div class="tools">
+				<button class="tab" onclick={back} disabled={!built || revealed}>
+					<Icon name="arrowLeft" size={15} /> back
+				</button>
+			</div>
+
+			<KanaKeypad
+				sounds={pad}
+				script={readingScript}
+				shuffleKey={round}
+				disabled={revealed}
+				size="sm"
+				onPick={(s) => push(glyphOf(s, readingScript))}
+			/>
+		{/if}
+
+		{#if revealed && current.examples.length}
+			<ul class="ex">
+				{#each current.examples as e}
+					<li><span class="jp">{e.word}</span> <span class="jp muted">{e.reading}</span> <span class="muted">{e.en}</span></li>
+				{/each}
+			</ul>
+		{/if}
 	{/if}
 </DrillFrame>
 
 <style>
 	.modes {
+		display: flex;
 		justify-content: center;
+		gap: var(--s-2);
+		flex-wrap: wrap;
 		margin-bottom: var(--s-4);
 	}
 	.sep {
-		width: 1px;
-		height: 20px;
+		width: 2px;
+		height: 24px;
 		background: var(--surface-line);
 	}
 	.prompt {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
+		display: grid;
+		justify-items: center;
 		gap: var(--s-2);
 		margin-bottom: var(--s-4);
 	}
@@ -174,38 +230,71 @@
 		cursor: pointer;
 		animation: zk-pop var(--t-base) var(--ease-spring);
 	}
-	.strokes {
-		font-size: var(--fs-2xs);
-		letter-spacing: var(--tracking-wide);
-		text-transform: uppercase;
-		color: var(--ink-muted);
-	}
 	.reveal {
-		margin-top: var(--s-3);
-		padding: var(--s-3) var(--s-4);
-		background: var(--bg-sunken);
-		border-radius: var(--r-md);
-		text-align: center;
-		max-width: min(46ch, 100%);
-	}
-	.readings {
 		display: flex;
-		gap: var(--s-4);
 		justify-content: center;
+		align-items: center;
+		gap: var(--s-3);
+		flex-wrap: wrap;
+		margin-bottom: var(--s-3);
+		padding: var(--s-2) var(--s-4);
+		border-radius: var(--r-md);
+		background: var(--bad-bg);
 		font-size: var(--fs-sm);
-		color: var(--wedge-deep);
 	}
-	.reveal ul {
+	.reveal.ok {
+		background: var(--ok-bg);
+	}
+	.reveal strong {
+		font-family: var(--font-display);
+		font-size: var(--fs-md);
+	}
+	.slots {
+		display: flex;
+		justify-content: center;
+		gap: var(--s-2);
+		margin-bottom: var(--s-3);
+	}
+	.nudge {
+		animation: zk-shake 320ms var(--ease-in-out);
+	}
+	.slot {
+		display: grid;
+		place-items: center;
+		width: 58px;
+		height: 64px;
+		font-family: var(--font-jp);
+		font-size: 2rem;
+		border-radius: var(--r-md);
+		border: 3px dashed var(--surface-line);
+		background: var(--bg-tint);
+	}
+	.slot.filled {
+		border-style: solid;
+		border-color: var(--wedge);
+		background: var(--bg-raised);
+		box-shadow: 0 4px 0 var(--wedge-soft);
+	}
+	.solved .slot {
+		border-color: var(--ok);
+		background: var(--ok-bg);
+	}
+	.tools {
+		display: flex;
+		justify-content: center;
+		margin-bottom: var(--s-3);
+	}
+	.ex {
 		list-style: none;
-		margin: var(--s-2) 0 0;
+		margin: var(--s-4) 0 0;
 		padding: 0;
 		display: grid;
 		gap: 4px;
 		font-size: var(--fs-sm);
 	}
-	.reveal li {
+	.ex li {
 		display: flex;
-		gap: var(--s-2);
+		gap: var(--s-3);
 		justify-content: center;
 		flex-wrap: wrap;
 	}

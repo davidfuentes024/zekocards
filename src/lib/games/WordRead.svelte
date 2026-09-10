@@ -1,5 +1,6 @@
 <script>
-	/* Whole words, made only of the sounds you selected. Type the full reading. */
+	/* Read the Japanese, say what it means. The answer is English —
+	   the interface language — never a romaji transcription. */
 	import DrillFrame from '$lib/components/DrillFrame.svelte';
 	import RomajiInput from '$lib/components/RomajiInput.svelte';
 	import Icon from '$lib/components/Icon.svelte';
@@ -7,7 +8,7 @@
 	import { stats, weightOf } from '$lib/stores/progress.js';
 	import { createDrill } from '$lib/utils/drill.svelte.js';
 	import { nextPrompt } from '$lib/utils/random.js';
-	import { checkWord, romajiFromKana } from '$lib/utils/answer.js';
+	import { checkMeaning } from '$lib/utils/answer.js';
 	import { say } from '$lib/utils/speech.js';
 
 	const drill = createDrill({ goal: 20 });
@@ -15,7 +16,6 @@
 	let current = $state(null);
 	let value = $state('');
 	let status = $state(null);
-	let echoing = $state(false);
 	let revealed = $state(false);
 
 	const pool = $derived($readableWords.filter((w) => w.script === $script));
@@ -31,7 +31,6 @@
 		drill.mark();
 		value = '';
 		status = null;
-		echoing = false;
 		revealed = false;
 		drill.clearFeedback();
 	}
@@ -41,34 +40,20 @@
 	});
 
 	function submit() {
-		if (!current) return;
-		const ok = checkWord(value, current);
-		if (echoing) {
-			if (ok) next();
-			else {
-				status = 'bad';
-				value = '';
-			}
-			return;
-		}
+		if (!current || revealed) return;
+		const ok = checkMeaning(value, current.en);
 		drill.answer(current.soundIds, ok);
-		if (ok) {
-			status = 'ok';
-			say(current.kana);
-			setTimeout(next, 520);
-		} else {
-			status = 'bad';
-			echoing = true;
-			revealed = true;
-			value = '';
-		}
+		status = ok ? 'ok' : 'bad';
+		revealed = true;
+		say(current.kana);
+		setTimeout(next, ok ? 900 : 2200);
 	}
 </script>
 
 <DrillFrame
-	title="Word Reading"
-	jp="単語読み"
-	hint="Only words spelled entirely with your selected sounds appear here."
+	title="Reading → Meaning"
+	jp="意味"
+	hint="Read it in your head first. Then type what it means in English."
 	asked={drill.asked}
 	correct={drill.correct}
 	streak={drill.streak}
@@ -78,77 +63,73 @@
 >
 	{#if current}
 		<div class="prompt">
-			<button class="word jp" onclick={() => say(current.kana)} title="Hear it">{current.kana}</button>
-			<div class="row center">
-				<span class="tag">{echoing ? 'Type the reading to continue' : 'Read it aloud, then type it'}</span>
-				<button class="ghost" onclick={() => say(current.kana)}>
-					<Icon name="sound" size={15} /> replay
-				</button>
-			</div>
+			<span class="word jp">{current.kana}</span>
 			{#if revealed}
-				<div class="reveal">
-					<strong>{romajiFromKana(current.kana)}</strong>
-					<span>{current.en}</span>
-					{#if current.kanji}<span class="jp kanji">{current.kanji}</span>{/if}
+				<div class="reveal" class:ok={status === 'ok'}>
+					<strong>{current.en}</strong>
+					{#if current.kanji}<span class="jp">{current.kanji}</span>{/if}
+					<button class="hear" onclick={() => say(current.kana)}>
+						<Icon name="sound" size={16} /> hear it
+					</button>
 				</div>
 			{/if}
 		</div>
 
-		<RomajiInput bind:value status={status} onsubmit={submit} />
+		<RomajiInput
+			bind:value
+			status={status}
+			onsubmit={submit}
+			placeholder="meaning in English…"
+			label="Meaning"
+			disabled={revealed}
+		/>
 	{:else}
 		<p class="muted">
-			No word in the dictionary can be written with your current selection yet. Add a few more
-			columns — vowels plus one consonant row is usually enough.
+			No word can be written with your current selection yet. Add a column or two.
 		</p>
 	{/if}
 </DrillFrame>
 
 <style>
 	.prompt {
-		text-align: center;
+		display: grid;
+		justify-items: center;
+		gap: var(--s-3);
 		margin-bottom: var(--s-5);
 	}
 	.word {
 		font-family: var(--font-jp);
-		font-size: clamp(2.4rem, 8vw, 4rem);
+		font-size: clamp(2.8rem, 9vw, 4.6rem);
 		line-height: 1.1;
 		letter-spacing: 0.06em;
-		background: none;
-		border: 0;
 		color: var(--ink-strong);
-		cursor: pointer;
-	}
-	.center {
-		justify-content: center;
-		margin-top: var(--s-3);
-	}
-	.ghost {
-		display: inline-flex;
-		align-items: center;
-		gap: 4px;
-		background: none;
-		border: 0;
-		color: var(--wedge);
-		font-size: var(--fs-xs);
-		font-weight: 700;
-		cursor: pointer;
+		animation: zk-pop var(--t-base) var(--ease-spring);
 	}
 	.reveal {
 		display: flex;
-		justify-content: center;
+		align-items: center;
 		gap: var(--s-3);
-		align-items: baseline;
-		margin-top: var(--s-3);
-		padding: var(--s-2) var(--s-3);
-		background: var(--bad-bg);
+		padding: var(--s-2) var(--s-4);
 		border-radius: var(--r-md);
+		background: var(--bad-bg);
 		font-size: var(--fs-sm);
+	}
+	.reveal.ok {
+		background: var(--ok-bg);
 	}
 	.reveal strong {
 		font-family: var(--font-display);
-		letter-spacing: 0.05em;
+		font-size: var(--fs-md);
 	}
-	.kanji {
-		font-family: var(--font-jp);
+	.hear {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		border: 0;
+		background: none;
+		color: var(--wedge-deep);
+		font-weight: 700;
+		font-size: var(--fs-xs);
+		cursor: pointer;
 	}
 </style>

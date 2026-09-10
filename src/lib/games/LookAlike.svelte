@@ -1,83 +1,82 @@
 <script>
-	/* The look-alikes: シ ツ ソ ン, ね れ わ, さ き ち …
-	   Only characters that genuinely get confused, drilled back to back. */
+	/* The confusable families. You see one of them and must produce the
+	   same sound in the other script, from the complete grid — so telling
+	   シ from ツ is the only way through. */
 	import DrillFrame from '$lib/components/DrillFrame.svelte';
-	import RomajiInput from '$lib/components/RomajiInput.svelte';
-	import { CONFUSION_SETS, KANA_INDEX } from '$lib/data/kana.js';
+	import KanaKeypad from '$lib/components/KanaKeypad.svelte';
+	import Icon from '$lib/components/Icon.svelte';
+	import { CONFUSION_SETS, KANA_INDEX, scriptSounds, glyphOf } from '$lib/data/kana.js';
 	import { selectedSounds, script } from '$lib/stores/selection.js';
 	import { stats, weightOf } from '$lib/stores/progress.js';
 	import { createDrill } from '$lib/utils/drill.svelte.js';
-	import { nextPrompt, pick } from '$lib/utils/random.js';
-	import { checkSound } from '$lib/utils/answer.js';
+	import { nextPrompt, pick as pickOne } from '$lib/utils/random.js';
 	import { say } from '$lib/utils/speech.js';
 
 	const drill = createDrill({ goal: 24 });
 
 	let current = $state(null);
-	let set = $state(null);
-	let value = $state('');
-	let status = $state(null);
-	let echoing = $state(false);
-	let compare = $state(false);
+	let family = $state(null);
+	let wrongId = $state(null);
+	let okId = $state(null);
+	let locked = $state(false);
+	let missed = $state(false);
+	let round = $state(0);
 
-	const sets = $derived(
-		CONFUSION_SETS.filter((s) => s.script === $script).map((s) => ({
-			...s,
-			available: s.glyphs.filter((g) => {
-				const snd = KANA_INDEX.get(g);
-				return snd && $selectedSounds.has(snd.id);
-			})
-		})).filter((s) => s.available.length >= 2)
+	const answerScript = $derived($script);
+	const promptScript = $derived($script === 'hiragana' ? 'katakana' : 'hiragana');
+	const pad = $derived(scriptSounds(answerScript));
+
+	/* families are defined per script; use the ones the learner has unlocked */
+	const families = $derived(
+		CONFUSION_SETS.map((set) => ({
+			...set,
+			available: set.glyphs
+				.map((g) => KANA_INDEX.get(g))
+				.filter((s) => s && s.h && s.k && $selectedSounds.has(s.id))
+		})).filter((set) => set.available.length >= 2)
 	);
 
 	function next() {
-		if (!sets.length) return;
-		set = pick(sets);
-		const pool = set.available.map((g) => KANA_INDEX.get(g));
-		current = nextPrompt(pool, (s) => weightOf(s.id, $stats), drill.recent, 2);
+		if (!families.length) return;
+		family = pickOne(families);
+		current = nextPrompt(family.available, (s) => weightOf(s.id, $stats), drill.recent, 2);
 		drill.remember(current);
 		drill.mark();
-		value = '';
-		status = null;
-		echoing = false;
-		compare = false;
+		wrongId = null;
+		okId = null;
+		locked = false;
+		missed = false;
+		round += 1;
 		drill.clearFeedback();
 	}
 
 	$effect(() => {
-		if (!current && sets.length) next();
+		if (!current && families.length) next();
 	});
 
-	function submit() {
-		if (!current) return;
-		const ok = checkSound(value, current);
-		if (echoing) {
-			if (ok) next();
-			else {
-				status = 'bad';
-				value = '';
-			}
+	function pick(s) {
+		if (!current || locked) return;
+		if (s.r === current.r) {
+			okId = s.id;
+			locked = true;
+			if (!missed) drill.answer(current.id, true);
+			say(glyphOf(current, answerScript));
+			setTimeout(next, 520);
 			return;
 		}
-		drill.answer(current.id, ok);
-		if (ok) {
-			status = 'ok';
-			setTimeout(next, 360);
-		} else {
-			status = 'bad';
-			echoing = true;
-			compare = true;
-			value = '';
+		if (!missed) {
+			missed = true;
+			drill.answer(current.id, false);
 		}
+		wrongId = s.id;
+		setTimeout(() => (wrongId = null), 420);
 	}
-
-	const glyph = $derived(current ? ($script === 'hiragana' ? current.h : current.k) : '');
 </script>
 
 <DrillFrame
 	title="Look-alikes"
 	jp="紛らわしい字"
-	hint="These are the characters everyone mixes up. Same shapes, back to back, until they separate."
+	hint="These are the shapes everyone confuses. Identify the one you are shown, then produce it in the other script."
 	asked={drill.asked}
 	correct={drill.correct}
 	streak={drill.streak}
@@ -85,79 +84,92 @@
 	goal={drill.goal}
 	feedback={drill.feedback}
 >
-	{#if current}
+	{#if current && family}
 		<div class="prompt">
-			<button class="glyph jp" onclick={() => say(glyph)}>{glyph}</button>
-			<span class="tag">{set.note}</span>
-		</div>
-
-		{#if compare}
-			<div class="compare">
-				{#each set.available as g}
-					{@const snd = KANA_INDEX.get(g)}
-					<div class="cmp" class:target={g === glyph}>
-						<span class="jp">{g}</span>
-						<small>{snd.r}</small>
-					</div>
+			<div class="family">
+				{#each family.available as s (s.id)}
+					<span class="fg jp" class:target={s.id === current.id}>{glyphOf(s, promptScript)}</span>
 				{/each}
 			</div>
-		{/if}
+			<p class="note"><Icon name="target" size={15} /> {family.note}</p>
+			<div class="ask">
+				<span class="from jp">{glyphOf(current, promptScript)}</span>
+				<Icon name="arrowRight" size={26} />
+				<span class="to jp">？</span>
+			</div>
+		</div>
 
-		<RomajiInput bind:value status={status} onsubmit={submit} />
+		<KanaKeypad
+			sounds={pad}
+			script={answerScript}
+			shuffleKey={round}
+			markedCorrect={okId}
+			markedWrong={wrongId}
+			disabled={locked}
+			onPick={pick}
+		/>
 	{:else}
 		<p class="muted">
-			Select more of the tricky rows (さ / し / つ / ね / れ / わ and friends) to unlock this drill
-			in {$script}.
+			Select more of the tricky rows (さ し つ ね れ わ and friends) to unlock this drill.
 		</p>
 	{/if}
 </DrillFrame>
 
 <style>
 	.prompt {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
+		display: grid;
+		justify-items: center;
 		gap: var(--s-3);
-		margin-bottom: var(--s-4);
+		margin-bottom: var(--s-5);
 	}
-	.glyph {
-		font-family: var(--font-jp);
-		font-size: var(--fs-kana);
-		line-height: 1;
-		border: 0;
-		background: none;
-		color: var(--ink-strong);
-		cursor: pointer;
-		animation: zk-pop var(--t-base) var(--ease-spring);
-	}
-	.compare {
+	.family {
 		display: flex;
-		justify-content: center;
-		gap: var(--s-3);
-		margin-bottom: var(--s-4);
+		gap: var(--s-2);
 		flex-wrap: wrap;
+		justify-content: center;
 	}
-	.cmp {
+	.fg {
 		display: grid;
 		place-items: center;
-		min-width: 66px;
-		padding: var(--s-2);
-		border-radius: var(--r-md);
-		background: var(--bg-sunken);
-		border: 2px solid transparent;
-	}
-	.cmp .jp {
+		width: 58px;
+		height: 58px;
 		font-family: var(--font-jp);
-		font-size: 2rem;
-	}
-	.cmp small {
-		font-size: var(--fs-2xs);
-		font-weight: 700;
-		letter-spacing: var(--tracking-wide);
+		font-size: 1.9rem;
+		border-radius: var(--r-sm);
+		background: var(--bg-tint);
+		border: 2px solid var(--surface-line);
 		color: var(--ink-muted);
 	}
-	.cmp.target {
-		border-color: var(--ok);
-		background: var(--ok-bg);
+	.note {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		font-size: var(--fs-xs);
+		color: var(--ink-muted);
+	}
+	.ask {
+		display: flex;
+		align-items: center;
+		gap: var(--s-4);
+		color: var(--aqua-deep);
+	}
+	.from,
+	.to {
+		display: grid;
+		place-items: center;
+		width: 108px;
+		height: 108px;
+		font-family: var(--font-jp);
+		font-size: 3.6rem;
+		border-radius: var(--r-lg);
+		border: 3px solid var(--surface-line);
+		background: var(--bg-raised);
+		box-shadow: 0 6px 0 var(--surface-line-strong);
+		color: var(--ink-strong);
+	}
+	.to {
+		background: var(--bg-tint);
+		color: var(--ink-muted);
+		border-style: dashed;
 	}
 </style>

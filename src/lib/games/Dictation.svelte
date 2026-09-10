@@ -1,8 +1,9 @@
 <script>
-	/* English meaning in, Japanese spelling out. The pad is the entire
-	   script, reshuffled per word — no romaji is ever shown. */
+	/* Hear a whole word, spell it out of the complete symbol grid.
+	   Nothing is written until the word is finished. */
 	import DrillFrame from '$lib/components/DrillFrame.svelte';
 	import KanaKeypad from '$lib/components/KanaKeypad.svelte';
+	import SoundPrompt from '$lib/components/SoundPrompt.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import { readableWords, script } from '$lib/stores/selection.js';
 	import { scriptSounds, glyphOf } from '$lib/data/kana.js';
@@ -15,22 +16,22 @@
 
 	let current = $state(null);
 	let built = $state('');
-	let nudge = $state(0);
 	let solved = $state(false);
 	let missed = $state(false);
+	let nudge = $state(0);
 	let round = $state(0);
 
 	const pad = $derived(scriptSounds($script));
 	const smalls = $derived($script === 'hiragana' ? ['っ', 'ー'] : ['ッ', 'ー']);
-	const pool = $derived($readableWords.filter((w) => w.script === $script && w.units.length <= 7));
+	const pool = $derived($readableWords.filter((w) => w.script === $script && w.units.length <= 6));
 
-	function wordWeight(w) {
+	function weight(w) {
 		return w.soundIds.reduce((s, id) => s + weightOf(id, $stats), 0) / w.soundIds.length;
 	}
 
 	function next() {
 		if (!pool.length) return;
-		current = nextPrompt(pool, wordWeight, drill.recent, 5);
+		current = nextPrompt(pool, weight, drill.recent, 5);
 		drill.remember(current);
 		drill.mark();
 		built = '';
@@ -53,7 +54,7 @@
 				solved = true;
 				drill.answer(current.soundIds, !missed);
 				say(current.kana);
-				setTimeout(next, 950);
+				setTimeout(next, 1100);
 			}
 		} else {
 			missed = true;
@@ -72,9 +73,9 @@
 </script>
 
 <DrillFrame
-	title="Word Forge"
-	jp="組み立て"
-	hint="You get the meaning and nothing else. Spell the word from the full grid."
+	title="Word Dictation"
+	jp="書き取り"
+	hint="One word, spoken once. Spell it symbol by symbol — a wrong key simply will not land."
 	asked={drill.asked}
 	correct={drill.correct}
 	streak={drill.streak}
@@ -83,17 +84,23 @@
 	feedback={drill.feedback}
 >
 	{#if current}
-		<div class="prompt">
-			<span class="tag">Write this word in {$script}</span>
-			<strong class="en">{current.en}</strong>
-			{#if current.kanji}<span class="jp kanji">{current.kanji}</span>{/if}
-		</div>
+		{#key round}
+			<SoundPrompt text={current.kana} fallback={current.romaji} label="Spell what you hear" big={false} />
+		{/key}
 
 		<div class="slots" class:solved class:nudge={nudge % 2 === 1}>
 			{#each Array(current.units.length) as _, i}
 				<span class="slot jp" class:filled={i < [...built].length}>{[...built][i] ?? ''}</span>
 			{/each}
 		</div>
+
+		{#if solved}
+			<p class="reveal">
+				<strong class="jp">{current.kana}</strong>
+				<span>{current.en}</span>
+				{#if current.kanji}<span class="jp k">{current.kanji}</span>{/if}
+			</p>
+		{/if}
 
 		<div class="tools">
 			<button class="tab" onclick={back} disabled={!built || solved}>
@@ -113,29 +120,11 @@
 			onPick={(s) => push(glyphOf(s, $script))}
 		/>
 	{:else}
-		<p class="muted">Select a few more columns to unlock buildable words.</p>
+		<p class="muted">Select a few more columns to unlock words for dictation.</p>
 	{/if}
 </DrillFrame>
 
 <style>
-	.prompt {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: var(--s-2);
-		margin-bottom: var(--s-4);
-	}
-	.en {
-		font-family: var(--font-display);
-		font-size: var(--fs-2xl);
-		color: var(--ink-strong);
-		text-align: center;
-	}
-	.kanji {
-		font-family: var(--font-jp);
-		font-size: var(--fs-lg);
-		color: var(--ink-muted);
-	}
 	.slots {
 		display: flex;
 		justify-content: center;
@@ -149,10 +138,10 @@
 	.slot {
 		display: grid;
 		place-items: center;
-		width: 62px;
-		height: 68px;
+		width: 64px;
+		height: 70px;
 		font-family: var(--font-jp);
-		font-size: 2.1rem;
+		font-size: 2.2rem;
 		border-radius: var(--r-md);
 		border: 3px dashed var(--surface-line);
 		background: var(--bg-tint);
@@ -170,6 +159,20 @@
 		background: var(--ok-bg);
 		box-shadow: 0 4px 0 var(--ok);
 	}
+	.reveal {
+		display: flex;
+		justify-content: center;
+		align-items: baseline;
+		gap: var(--s-3);
+		margin-bottom: var(--s-4);
+		font-size: var(--fs-sm);
+		color: var(--ink-muted);
+	}
+	.reveal strong {
+		font-family: var(--font-jp);
+		font-size: var(--fs-xl);
+		color: var(--ink-strong);
+	}
 	.tools {
 		display: flex;
 		justify-content: center;
@@ -178,8 +181,8 @@
 	}
 	@media (max-width: 620px) {
 		.slot {
-			width: 46px;
-			height: 52px;
+			width: 48px;
+			height: 54px;
 			font-size: 1.6rem;
 		}
 	}

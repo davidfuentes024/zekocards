@@ -80,7 +80,7 @@
 					<button class="kt" class:is-on={open === k.id} onclick={() => (open = k.id)}>
 						<span class="glyph jp">{k.kanji}</span>
 						<span class="meaning">{k.meaning}</span>
-						<span class="lvl">{k.level} · {k.strokes}画</span>
+						<span class="lvl">{k.level}{k.strokes ? ` · ${k.strokes}画` : ''}</span>
 					</button>
 				</Reveal>
 			{/each}
@@ -95,7 +95,7 @@
 				<button class="dglyph jp" onclick={() => say(current.kanji)}>{current.kanji}</button>
 				<div>
 					<h2>{current.meaning}</h2>
-					<p class="muted">{current.level} · {current.strokes} strokes</p>
+					<p class="muted">{current.level}{current.strokes ? ` · ${current.strokes} strokes` : ''}</p>
 					<div class="readings">
 						<span class="rd"><small>音</small> <b class="jp">{current.on.join('・') || '—'}</b></span>
 						<span class="rd"><small>訓</small> <b class="jp">{current.kun.join('・') || '—'}</b></span>

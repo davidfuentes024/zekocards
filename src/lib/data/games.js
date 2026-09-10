@@ -1,27 +1,30 @@
-/* The training hall roster. Order here is the order shown everywhere. */
+/* The training hall roster.
+   Every drill answers with Japanese symbols or English meaning — never with
+   a romaji transcription — and every answer pad shows the complete script,
+   reshuffled, so nothing can be solved by position or elimination. */
 export const GAMES = [
 	{
-		id: 'recall',
-		title: 'Sound Recall',
-		jp: '音読み',
-		icon: 'eye',
-		blurb: 'See the character, type the reading. Miss it and you type the answer before moving on.',
+		id: 'blind',
+		title: 'Blind Sound',
+		jp: '音のみ',
+		icon: 'ear',
+		blurb: 'You only hear it. Find the symbol on a pad holding every kana in the script.',
 		needs: 'sounds'
 	},
 	{
-		id: 'produce',
-		title: 'Kana Production',
+		id: 'bridge',
+		title: 'Script Bridge',
+		jp: '対応',
+		icon: 'shuffle',
+		blurb: 'See a symbol in one script, produce the same sound in the other. No romaji anywhere.',
+		needs: 'sounds'
+	},
+	{
+		id: 'dictation',
+		title: 'Word Dictation',
 		jp: '書き取り',
 		icon: 'keyboard',
-		blurb: 'Given a sound, find the character among every sound you study. No shortlists.',
-		needs: 'sounds'
-	},
-	{
-		id: 'words',
-		title: 'Word Reading',
-		jp: '単語読み',
-		icon: 'scroll',
-		blurb: 'Whole words made only from your selection. Read them, type the full reading.',
+		blurb: 'One spoken word. Spell it out of the full grid, symbol by symbol.',
 		needs: 'words'
 	},
 	{
@@ -29,23 +32,23 @@ export const GAMES = [
 		title: 'Word Forge',
 		jp: '組み立て',
 		icon: 'brush',
-		blurb: 'Spell a word kana by kana from the full pad. Wrong keys simply refuse to land.',
+		blurb: 'Only the meaning is given. Write the word in kana from the complete pad.',
 		needs: 'words'
 	},
 	{
-		id: 'listen',
-		title: 'Ear Training',
-		jp: '聞き取り',
-		icon: 'ear',
-		blurb: 'Audio first, characters after. Sounds or whole words, your choice.',
-		needs: 'sounds'
+		id: 'words',
+		title: 'Reading → Meaning',
+		jp: '意味',
+		icon: 'scroll',
+		blurb: 'Read the Japanese and say what it means. Comprehension, not transcription.',
+		needs: 'words'
 	},
 	{
 		id: 'lookalike',
 		title: 'Look-alikes',
 		jp: '紛らわしい字',
 		icon: 'target',
-		blurb: 'シ ツ ソ ン and every other pair that ruins beginners, drilled side by side.',
+		blurb: 'シ ツ ソ ン and the rest — identify which one you got, then produce it.',
 		needs: 'sounds'
 	},
 	{
@@ -53,7 +56,7 @@ export const GAMES = [
 		title: 'Anchor Recall',
 		jp: '連想',
 		icon: 'pencil',
-		blurb: 'Your own written associations, played back as the only clue.',
+		blurb: 'Your own written association, with the symbol removed.',
 		needs: 'anchors'
 	},
 	{
@@ -61,7 +64,7 @@ export const GAMES = [
 		title: 'Sixty Seconds',
 		jp: '速読み',
 		icon: 'flame',
-		blurb: 'A one-minute sprint. Recognition, not decoding.',
+		blurb: 'Audio in, symbol out, one minute. No time to reason it out.',
 		needs: 'sounds'
 	},
 	{
@@ -69,7 +72,7 @@ export const GAMES = [
 		title: 'Kanji Grind',
 		jp: '漢字',
 		icon: 'seal',
-		blurb: 'Meanings and readings, with every reading written in kana you already know.',
+		blurb: 'Meanings in English, readings spelled out in kana on the full grid.',
 		needs: 'kanji'
 	}
 ];

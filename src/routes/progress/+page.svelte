@@ -158,7 +158,7 @@
 							</div>
 						{/each}
 					</div>
-					<a class="btn btn--lg" href="/practice/recall">
+					<a class="btn btn--lg" href="/practice/blind">
 						<Icon name="target" size={18} /> drill these now
 					</a>
 				{:else}

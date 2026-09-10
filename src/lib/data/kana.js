@@ -200,6 +200,20 @@ export function acceptedRomaji(sound) {
 	return [sound.r, ...sound.alt].map((x) => x.toLowerCase());
 }
 
+/**
+ * Every sound that exists in a script. This is the answer pool for the
+ * drills: distractors are never limited to what the learner selected,
+ * so a symbol can never be identified by elimination.
+ */
+export function scriptSounds(script) {
+	return ALL_SOUNDS.filter((s) => (script === 'hiragana' ? s.h : s.k));
+}
+
+/** The glyph of a sound in a given script. */
+export function glyphOf(sound, script) {
+	return script === 'hiragana' ? sound.h : sound.k;
+}
+
 export const SCRIPTS = [
 	{ id: 'hiragana', label: 'Hiragana', jp: 'ひらがな' },
 	{ id: 'katakana', label: 'Katakana', jp: 'カタカナ' }

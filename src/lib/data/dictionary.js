@@ -738,6 +738,9 @@ const RAW4 = [
 	'そっくり|-|sokkuri|identical|phrase'
 ];
 
+/* ---------- extended vocabulary lives in dictionary-extra.js ---------- */
+import { EXTRA_ROWS } from './dictionary-extra.js';
+
 /* ---------- parse & export ---------- */
 import { tokenize } from './kana.js';
 
@@ -746,13 +749,16 @@ function parse(row, index) {
 	const { units } = tokenize(kana);
 	const soundIds = units.filter((u) => u.sound).map((u) => u.sound.id);
 	const isKatakana = /[゠-ヿ]/.test(kana);
+	const tagList = tags.split(',');
+	/* everything without an explicit JLPT tag is beginner vocabulary */
+	if (!tagList.some((t) => /^n[1-5]$/.test(t))) tagList.push('n5');
 	return {
 		id: `w${index}`,
 		kana,
 		kanji: kanji === '-' ? null : kanji,
 		romaji,
 		en,
-		tags: tags.split(','),
+		tags: tagList,
 		script: isKatakana ? 'katakana' : 'hiragana',
 		units,
 		soundIds: [...new Set(soundIds)],
@@ -760,7 +766,20 @@ function parse(row, index) {
 	};
 }
 
-export const WORDS = [...RAW, ...RAW2, ...RAW3, ...RAW4].map(parse);
+/* The base list is N5-level; the extra file adds N4 → N2. A word repeated
+   across batches keeps its first (lowest-level) definition. */
+function dedupe(rows) {
+	const seen = new Set();
+	return rows.filter((row) => {
+		const [kana, , , en] = row.split('|');
+		const key = `${kana}|${en}`;
+		if (seen.has(key)) return false;
+		seen.add(key);
+		return true;
+	});
+}
+
+export const WORDS = dedupe([...RAW, ...RAW2, ...RAW3, ...RAW4, ...EXTRA_ROWS]).map(parse);
 
 export const TAGS = [...new Set(WORDS.flatMap((w) => w.tags))].sort();
 
@@ -784,7 +803,19 @@ export const TAG_LABELS = {
 	school: 'School',
 	loanword: 'Loanwords',
 	noun: 'Nouns',
-	pronoun: 'Pronouns'
+	pronoun: 'Pronouns',
+	body: 'Body',
+	work: 'Work',
+	feeling: 'Feelings',
+	society: 'Society',
+	abstract: 'Abstract',
+	health: 'Health',
+	travel: 'Travel',
+	money: 'Money',
+	n5: 'JLPT N5',
+	n4: 'JLPT N4',
+	n3: 'JLPT N3',
+	n2: 'JLPT N2'
 };
 
 /** Words whose every sound is inside `allowedIds`. Neutral marks are free. */

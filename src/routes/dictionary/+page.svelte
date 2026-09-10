@@ -12,7 +12,10 @@
 	let tag = $state('all');
 	let scriptFilter = $state('all');
 	let onlyMine = $state(false);
+	let level = $state('all');
 	let limit = $state(60);
+
+	const LEVELS = ['all', 'n5', 'n4', 'n3', 'n2'];
 
 	const TAG_MOTIF = {
 		nature: 'sakura',
@@ -33,6 +36,7 @@
 		const needle = q.trim().toLowerCase();
 		return WORDS.filter((w) => {
 			if (tag !== 'all' && !w.tags.includes(tag)) return false;
+			if (level !== 'all' && !w.tags.includes(level)) return false;
 			if (scriptFilter !== 'all' && w.script !== scriptFilter) return false;
 			if (onlyMine && !w.soundIds.every((id) => $selectedSounds.has(id))) return false;
 			if (!needle) return true;
@@ -50,6 +54,7 @@
 	$effect(() => {
 		q;
 		tag;
+		level;
 		scriptFilter;
 		onlyMine;
 		limit = 60;
@@ -108,6 +113,14 @@
 				</button>
 			</div>
 
+			<div class="seg">
+				{#each LEVELS as l}
+					<button class="seg-btn" class:is-on={level === l} onclick={() => (level = l)}>
+						{l === 'all' ? 'All levels' : l.toUpperCase()}
+					</button>
+				{/each}
+			</div>
+
 			<button class="tab tab--aqua" aria-pressed={onlyMine} onclick={() => (onlyMine = !onlyMine)}>
 				<Icon name="target" size={16} /> only my selection
 			</button>
@@ -121,7 +134,7 @@
 				<span>All</span>
 				<small>{WORDS.length}</small>
 			</button>
-			{#each TAGS as t}
+			{#each TAGS.filter((t) => !/^n[1-5]$/.test(t)) as t}
 				<button class="topic" class:is-on={tag === t} onclick={() => (tag = t)}>
 					{#if TAG_MOTIF[t]}
 						<Motif name={TAG_MOTIF[t]} size={34} float={false} />

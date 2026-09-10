@@ -17,6 +17,11 @@ export function hasSpeech() {
 	return browser && 'speechSynthesis' in window;
 }
 
+/** True when the browser can actually pronounce Japanese. */
+export function hasJapaneseVoice() {
+	return !!japaneseVoice();
+}
+
 export function japaneseVoice() {
 	if (!voices.length) loadVoices();
 	return (
