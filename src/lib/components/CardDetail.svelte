@@ -29,12 +29,7 @@
 </script>
 
 {#if sound}
-	<div class="scrim" role="presentation" onclick={onClose}></div>
-	<aside class="drawer scroll" aria-label="Card detail">
-		<header>
-			<button class="close" onclick={onClose} aria-label="Close"><Icon name="cross" size={18} /></button>
-		</header>
-
+	<div class="detail">
 		<div class="hero">
 			<div class="glyphs">
 				<button class="big jp" onclick={() => say(script === 'hiragana' ? sound.h : sound.k)}>
@@ -121,45 +116,12 @@
 				</p>
 			{/if}
 		</section>
-	</aside>
+	</div>
 {/if}
 
 <style>
-	.scrim {
-		position: fixed;
-		inset: 0;
-		z-index: 30;
-		background: rgba(29, 54, 88, 0.32);
-		backdrop-filter: blur(2px);
-		animation: zk-rise var(--t-base) var(--ease-out);
-	}
-	.drawer {
-		position: fixed;
-		top: 0;
-		right: 0;
-		bottom: 0;
-		z-index: 31;
-		width: min(460px, 100%);
-		padding: var(--s-5);
-		background: var(--bg-raised);
-		border-left: var(--border);
-		box-shadow: var(--sh-3);
-		animation: zk-rise var(--t-base) var(--ease-out);
-	}
-	header {
-		display: flex;
-		justify-content: flex-end;
-	}
-	.close {
-		display: grid;
-		place-items: center;
-		width: 36px;
-		height: 36px;
-		border: 0;
-		border-radius: 50%;
-		background: var(--bg-sunken);
-		color: var(--cello);
-		cursor: pointer;
+	.detail {
+		display: block;
 	}
 
 	.hero {
@@ -170,7 +132,7 @@
 	}
 	.big {
 		font-family: var(--font-jp);
-		font-size: 5rem;
+		font-size: 6rem;
 		line-height: 1;
 		border: 0;
 		background: none;
@@ -209,8 +171,9 @@
 		display: flex;
 		align-items: center;
 		gap: var(--s-4);
-		padding: var(--s-3);
-		background: var(--bg-sunken);
+		padding: var(--s-3) var(--s-4);
+		background: var(--bg-tint);
+		border: 2px solid var(--surface-line);
 		border-radius: var(--r-md);
 		margin-bottom: var(--s-5);
 	}
@@ -267,7 +230,7 @@
 		font-size: var(--fs-sm);
 	}
 	.words li:nth-child(odd) {
-		background: var(--bg-sunken);
+		background: var(--bg-tint);
 	}
 	.w {
 		font-family: var(--font-jp);

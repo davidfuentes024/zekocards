@@ -83,9 +83,12 @@
 		<div class="stack">
 			<span class="eyebrow">zekocards · ゼコカード</span>
 			<p class="muted small">
-				Free forever, no account, no tracking. Everything you do — selections, anchors, streaks —
-				stays in this browser.
+				Built for the long, boring middle of learning kana — the part where repetition is the
+				only thing that works.
 			</p>
+			<a class="letter-link" href="/#letter">
+				<Icon name="seal" size={16} /> read the letter
+			</a>
 		</div>
 		<div class="links">
 			{#each NAV.slice(1) as item}
@@ -156,11 +159,12 @@
 	.nav a {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		padding: 0.42em 0.8em;
-		border-radius: var(--r-full);
-		font-size: var(--fs-sm);
-		font-weight: 600;
+		gap: 7px;
+		padding: 0.48em 0.9em;
+		border-radius: var(--r-tab);
+		font-family: var(--font-display);
+		font-size: var(--fs-xs);
+		font-weight: 700;
 		color: var(--ink-muted);
 		transition:
 			background var(--t-fast) var(--ease-out),
@@ -172,7 +176,8 @@
 	}
 	.nav a.active {
 		background: var(--cello);
-		color: var(--mint);
+		color: #fff;
+		box-shadow: 0 3px 0 var(--cello-ink);
 	}
 
 	.right {
@@ -183,13 +188,15 @@
 	.pill {
 		display: inline-flex;
 		align-items: center;
-		gap: 4px;
-		padding: 0.25em 0.6em;
-		border-radius: var(--r-full);
+		gap: 5px;
+		padding: 0.3em 0.7em;
+		border-radius: var(--r-tab);
 		background: var(--bg-raised);
-		border: var(--border);
+		border: 2px solid var(--surface-line);
+		box-shadow: 0 3px 0 var(--surface-line);
+		font-family: var(--font-display);
 		font-size: var(--fs-2xs);
-		font-weight: 700;
+		font-weight: 800;
 		color: var(--wedge-deep);
 	}
 
@@ -234,16 +241,21 @@
 		flex-wrap: wrap;
 		gap: var(--s-4);
 		font-size: var(--fs-sm);
-		font-weight: 600;
+		font-weight: 700;
+	}
+
+	.letter-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		font-size: var(--fs-xs);
+		font-weight: 700;
+		color: var(--wedge);
 	}
 	.ground {
-		height: 14px;
-		background: repeating-linear-gradient(
-			90deg,
-			var(--aqua) 0 18px,
-			var(--aqua-deep) 18px 36px
-		);
-		opacity: 0.5;
+		height: 16px;
+		background: repeating-linear-gradient(90deg, var(--aqua) 0 20px, var(--aqua-deep) 20px 40px);
+		opacity: 0.45;
 	}
 
 	@media (max-width: 900px) {

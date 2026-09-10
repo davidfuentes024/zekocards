@@ -1,10 +1,13 @@
 <script>
 	import Icon from '$lib/components/Icon.svelte';
-	import Zeko from '$lib/components/Zeko.svelte';
+	import ZekoSpeak from '$lib/components/ZekoSpeak.svelte';
+	import Motif from '$lib/components/Motif.svelte';
+	import Reveal from '$lib/components/Reveal.svelte';
 	import { GAMES } from '$lib/data/games.js';
 	import { selectionSummary, script, readableWords } from '$lib/stores/selection.js';
 	import { anchorCount } from '$lib/stores/associations.js';
 	import { SCRIPTS } from '$lib/data/kana.js';
+	import { stats, overall } from '$lib/stores/progress.js';
 
 	const wordsInScript = $derived($readableWords.filter((w) => w.script === $script).length);
 
@@ -14,115 +17,292 @@
 		if (g.needs === 'anchors') return $anchorCount > 0;
 		return true;
 	}
-
 	function reason(g) {
 		if (g.needs === 'sounds') return 'Select at least one sound on the Cards page.';
 		if (g.needs === 'words') return `No ${$script} words are readable with your selection yet.`;
 		if (g.needs === 'anchors') return 'Write an anchor on a card first.';
 		return '';
 	}
+
+	const TONES = ['aqua', 'ink', 'plain', 'mint', 'aqua', 'plain', 'ink', 'mint', 'plain'];
+	const featured = $derived(GAMES[0]);
+	const rest = $derived(GAMES.slice(1));
 </script>
 
 <svelte:head><title>Training hall · Zekocards</title></svelte:head>
 
-<section class="section wrap">
-	<div class="top">
-		<div class="stack">
-			<span class="eyebrow">Training hall · 道場</span>
-			<h1>Same sounds. Nine angles.</h1>
-			<p class="lede">
-				Every drill below is built from the {$selectionSummary.sounds} sound{$selectionSummary.sounds ===
-				1
-					? ''
-					: 's'} you selected — nothing else can appear. Switch script and the whole hall switches
-				with it.
-			</p>
-			<div class="row">
-				{#each SCRIPTS as s}
-					<button class="chip" aria-pressed={$script === s.id} onclick={() => script.set(s.id)}>
-						{s.label} <span class="jp">{s.jp}</span>
-					</button>
-				{/each}
-				<a class="btn btn--ghost btn--sm" href="/cards">
-					<Icon name="cards" size={15} /> change selection
-				</a>
-			</div>
-		</div>
-		<Zeko mood="think" size={150} />
-	</div>
+<section class="hall">
+	<Motif name="lantern" size={110} rotate={-8} class="deco deco--a" opacity={0.5} />
+	<Motif name="koi" size={140} rotate={12} class="deco deco--b" opacity={0.35} />
+	<Motif name="cloud" size={130} class="deco deco--c" opacity={0.6} />
 
-	<div class="grid-auto" style="--min:260px">
-		{#each GAMES as g}
-			{@const ok = availability(g)}
-			<a class="card" class:locked={!ok} href={ok ? `/practice/${g.id}` : '/cards'}>
-				<span class="ico"><Icon name={ok ? g.icon : 'lock'} size={22} /></span>
-				<div>
-					<strong>{g.title}</strong>
-					<span class="jp muted">{g.jp}</span>
+	<div class="wrap wrap--wide">
+		<div class="top">
+			<div>
+				<span class="eyebrow">Training hall · 道場</span>
+				<h1>Same sounds.<br /><em>Nine angles.</em></h1>
+				<p class="lede">
+					Everything here is built from the {$selectionSummary.sounds} sound{$selectionSummary.sounds ===
+					1
+						? ''
+						: 's'} you picked. Nothing else can appear.
+				</p>
+
+				<div class="controls">
+					<div class="seg">
+						{#each SCRIPTS as s}
+							<button class="seg-btn" class:is-on={$script === s.id} onclick={() => script.set(s.id)}>
+								<span class="jp">{s.jp}</span>{s.label}
+							</button>
+						{/each}
+					</div>
+					<a class="btn btn--ghost" href="/cards"><Icon name="cards" size={17} /> change selection</a>
 				</div>
-				<p class="muted">{ok ? g.blurb : reason(g)}</p>
-				<span class="go"><Icon name="arrowRight" size={16} /></span>
+			</div>
+
+			<ZekoSpeak
+				size={190}
+				mood="think"
+				align="end"
+				lines={[
+					'Start with Sound Recall. Always.',
+					'Ear training is the one everyone skips.',
+					'Sixty Seconds is where you find out.',
+					`${$overall.answers} answers so far. Keep going.`
+				]}
+			/>
+		</div>
+
+		<!-- featured -->
+		<Reveal from="up">
+			<a class="hero-tile" href="/practice/{featured.id}">
+				<div class="ht-icon"><Icon name={featured.icon} size={40} /></div>
+				<div class="ht-body">
+					<span class="eyebrow">Start here</span>
+					<h2>{featured.title} <span class="jp">{featured.jp}</span></h2>
+					<p>{featured.blurb}</p>
+				</div>
+				<span class="ht-go"><Icon name="arrowRight" size={26} /></span>
+				<Motif name="sakura" size={120} rotate={16} class="ht-motif" opacity={0.35} />
 			</a>
-		{/each}
+		</Reveal>
+
+		<div class="grid">
+			{#each rest as g, i}
+				{@const ok = availability(g)}
+				<Reveal from={i % 2 ? 'right' : 'left'} delay={i * 60} distance={46}>
+					<a class="tile game tone-{TONES[i + 1]}" class:locked={!ok} href={ok ? `/practice/${g.id}` : '/cards'}>
+						<span class="ico"><Icon name={ok ? g.icon : 'lock'} size={26} /></span>
+						<strong>{g.title}</strong>
+						<span class="jp">{g.jp}</span>
+						<p>{ok ? g.blurb : reason(g)}</p>
+						<span class="go"><Icon name="arrowRight" size={18} /></span>
+					</a>
+				</Reveal>
+			{/each}
+		</div>
 	</div>
 </section>
 
 <style>
+	.hall {
+		position: relative;
+		padding-block: var(--s-6) var(--s-8);
+		overflow: hidden;
+	}
+	.hall :global(.deco--a) {
+		position: absolute;
+		left: 1.5%;
+		bottom: 4%;
+	}
+	.hall :global(.deco--b) {
+		position: absolute;
+		right: 4%;
+		bottom: 8%;
+	}
+	.hall :global(.deco--c) {
+		position: absolute;
+		right: 26%;
+		top: 3%;
+	}
+
 	.top {
-		display: flex;
-		justify-content: space-between;
-		align-items: flex-end;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: end;
 		gap: var(--s-5);
 		margin-bottom: var(--s-6);
-		flex-wrap: wrap;
 	}
-	.card {
+	.top h1 {
+		font-size: var(--fs-3xl);
+		line-height: 1.02;
+		margin-block: var(--s-2) var(--s-3);
+	}
+	.top h1 em {
+		font-style: normal;
+		color: var(--wedge);
+	}
+
+	.controls {
+		display: flex;
+		gap: var(--s-3);
+		align-items: center;
+		flex-wrap: wrap;
+		margin-top: var(--s-4);
+	}
+	.seg {
+		display: flex;
+		padding: 4px;
+		gap: 4px;
+		border-radius: var(--r-md);
+		background: var(--bg-tint);
+		border: 2px solid var(--surface-line);
+	}
+	.seg-btn {
+		display: flex;
+		align-items: center;
+		gap: 7px;
+		padding: 0.45em 0.9em;
+		border: 0;
+		border-radius: var(--r-tab);
+		background: transparent;
+		font-family: var(--font-display);
+		font-size: var(--fs-xs);
+		font-weight: 800;
+		color: var(--ink-muted);
+		cursor: pointer;
+	}
+	.seg-btn .jp {
+		font-family: var(--font-jp);
+		font-size: var(--fs-sm);
+	}
+	.seg-btn.is-on {
+		background: var(--cello);
+		color: #fff;
+		box-shadow: 0 3px 0 var(--cello-ink);
+	}
+
+	/* featured */
+	.hero-tile {
 		position: relative;
-		display: grid;
-		gap: var(--s-2);
-		padding: var(--s-5);
-		background: var(--bg-raised);
-		border: var(--border);
-		border-radius: var(--r-lg);
-		color: var(--ink);
+		display: flex;
+		align-items: center;
+		gap: var(--s-5);
+		padding: var(--s-5) var(--s-6);
+		margin-bottom: var(--s-5);
+		border-radius: var(--r-xl);
+		border: 3px solid var(--cello);
+		background: var(--cello);
+		color: var(--mint);
+		box-shadow: 0 8px 0 var(--cello-ink);
 		overflow: hidden;
 		transition:
-			transform var(--t-fast) var(--ease-spring),
-			box-shadow var(--t-fast) var(--ease-out),
-			border-color var(--t-fast) var(--ease-out);
+			transform 140ms var(--ease-spring),
+			box-shadow 140ms var(--ease-out);
 	}
-	.card:hover {
-		transform: translateY(-4px);
-		box-shadow: var(--sh-2);
-		border-color: var(--aqua-deep);
+	.hero-tile:hover {
+		transform: translateY(-5px);
+		box-shadow: 0 13px 0 var(--cello-ink);
 	}
-	.card.locked {
-		opacity: 0.62;
+	.hero-tile:active {
+		transform: translateY(3px);
+		box-shadow: 0 3px 0 var(--cello-ink);
+	}
+	.ht-icon {
+		display: grid;
+		place-items: center;
+		width: 84px;
+		height: 84px;
+		flex: none;
+		border-radius: var(--r-lg);
+		background: var(--aqua);
+		color: var(--cello);
+		box-shadow: 0 5px 0 var(--aqua-deep);
+	}
+	.ht-body h2 {
+		color: #fff;
+		font-size: var(--fs-2xl);
+		margin-block: 2px;
+	}
+	.ht-body .jp {
+		font-family: var(--font-jp);
+		font-size: var(--fs-md);
+		color: var(--aqua);
+	}
+	.ht-body .eyebrow {
+		color: var(--aqua);
+	}
+	.ht-body p {
+		font-size: var(--fs-sm);
+		color: var(--aqua-soft);
+		max-width: min(60ch, 100%);
+	}
+	.ht-go {
+		margin-left: auto;
+		color: var(--aqua);
+	}
+	.hero-tile :global(.ht-motif) {
+		position: absolute;
+		right: 8%;
+		bottom: -30px;
+		opacity: 0.3;
+	}
+
+	/* grid */
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: var(--s-4);
+	}
+	.grid > :global(*:nth-child(3n + 2)) {
+		margin-top: var(--s-4);
+	}
+
+	.game {
+		display: grid;
+		gap: 2px;
+		height: 100%;
+	}
+	.game.tone-aqua {
+		background: var(--aqua-soft);
+	}
+	.game.tone-mint {
+		background: var(--mint);
+	}
+	.game.tone-ink {
+		background: var(--bg-raised);
+		border-color: var(--cello);
+		box-shadow: 0 6px 0 var(--cello);
+	}
+	.game.locked {
+		opacity: 0.6;
 	}
 	.ico {
 		display: grid;
 		place-items: center;
-		width: 46px;
-		height: 46px;
+		width: 58px;
+		height: 58px;
+		margin-bottom: var(--s-3);
 		border-radius: var(--r-md);
-		background: var(--aqua-soft);
+		background: var(--bg-raised);
+		border: 2px solid var(--surface-line);
 		color: var(--wedge-deep);
+		box-shadow: 0 4px 0 var(--surface-line);
 	}
-	.card.locked .ico {
-		background: var(--bg-sunken);
-		color: var(--ink-muted);
-	}
-	.card strong {
+	.game strong {
 		font-family: var(--font-display);
 		font-size: var(--fs-lg);
 		color: var(--ink-strong);
-		display: block;
 	}
-	.card .jp {
-		font-size: var(--fs-2xs);
+	.game .jp {
+		font-family: var(--font-jp);
+		font-size: var(--fs-xs);
+		color: var(--ink-muted);
 	}
-	.card p {
+	.game p {
+		margin-top: var(--s-2);
 		font-size: var(--fs-sm);
+		color: var(--ink-muted);
 		line-height: var(--lh-snug);
 	}
 	.go {
@@ -132,8 +312,38 @@
 		color: var(--aqua-deep);
 		transition: transform var(--t-base) var(--ease-spring);
 	}
-	.card:hover .go {
-		transform: translateX(4px);
+	.game:hover .go {
+		transform: translateX(5px);
 		color: var(--wedge);
+	}
+
+	@media (max-width: 1200px) {
+		.grid {
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}
+	@media (max-width: 900px) {
+		.top {
+			grid-template-columns: 1fr;
+		}
+		.grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
+		.grid > :global(*) {
+			margin-top: 0 !important;
+		}
+		.hall :global(.deco--a),
+		.hall :global(.deco--b),
+		.hall :global(.deco--c) {
+			display: none;
+		}
+		.hero-tile {
+			flex-wrap: wrap;
+		}
+	}
+	@media (max-width: 620px) {
+		.grid {
+			grid-template-columns: 1fr;
+		}
 	}
 </style>

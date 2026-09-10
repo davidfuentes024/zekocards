@@ -9,8 +9,8 @@
 	position: relative;
 	background: var(--bg-raised);
 	border: var(--border);
-	border-radius: var(--r-lg);
-	box-shadow: var(--sh-1);
+	border-radius: var(--r-tile);
+	box-shadow: var(--edge);
 	padding: var(--s-5);
 }
 
@@ -28,128 +28,175 @@
 	border-left: 5px solid var(--aqua);
 }
 
-/* ---------- Buttons ---------- */
+/* ---------- Buttons: solid game pieces, not document links ---------- */
 .btn {
 	--btn-bg: var(--wedge);
-	--btn-fg: var(--mint);
-	--btn-bd: var(--wedge);
+	--btn-fg: #ffffff;
+	--btn-edge: var(--wedge-deep);
+	position: relative;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	gap: var(--s-2);
-	padding: 0.65em 1.35em;
+	padding: 0.8em 1.5em;
 	font-family: var(--font-display);
 	font-size: var(--fs-sm);
-	font-weight: 700;
-	letter-spacing: 0.02em;
+	font-weight: 800;
+	letter-spacing: 0.01em;
 	color: var(--btn-fg);
 	background: var(--btn-bg);
-	border: 2px solid var(--btn-bd);
-	border-radius: var(--r-full);
+	border: 0;
+	border-radius: var(--r-md);
 	cursor: pointer;
+	box-shadow: 0 var(--lift) 0 var(--btn-edge);
+	transform: translateY(0);
 	transition:
-		transform var(--t-fast) var(--ease-spring),
-		box-shadow var(--t-fast) var(--ease-out),
-		background var(--t-fast) var(--ease-out),
-		color var(--t-fast) var(--ease-out);
-	box-shadow: var(--sh-1);
+		transform 90ms var(--ease-out),
+		box-shadow 90ms var(--ease-out),
+		filter var(--t-fast) var(--ease-out);
 	white-space: nowrap;
+	user-select: none;
 }
 
 .btn:hover {
-	transform: translateY(-2px);
-	box-shadow: var(--sh-2);
+	filter: brightness(1.06);
 }
 
 .btn:active {
-	transform: translateY(1px) scale(0.985);
-	box-shadow: var(--sh-press);
+	transform: translateY(var(--lift));
+	box-shadow: 0 0 0 var(--btn-edge);
 }
 
 .btn:disabled {
 	opacity: 0.45;
 	cursor: not-allowed;
 	transform: none;
-	box-shadow: none;
+	box-shadow: 0 var(--lift) 0 var(--btn-edge);
+	filter: none;
 }
 
 .btn--ghost {
-	--btn-bg: transparent;
+	--btn-bg: #ffffff;
 	--btn-fg: var(--wedge-deep);
-	--btn-bd: var(--surface-line);
-	box-shadow: none;
-}
-.btn--ghost:hover {
-	--btn-bd: var(--aqua-deep);
-	background: var(--aqua-soft);
+	--btn-edge: var(--surface-line-strong);
 }
 
 .btn--soft {
-	--btn-bg: var(--aqua-soft);
-	--btn-fg: var(--cello);
-	--btn-bd: var(--aqua-soft);
-}
-.btn--soft:hover {
 	--btn-bg: var(--aqua);
+	--btn-fg: var(--cello-ink);
+	--btn-edge: var(--aqua-deep);
 }
 
 .btn--ink {
 	--btn-bg: var(--cello);
 	--btn-fg: var(--mint);
-	--btn-bd: var(--cello);
+	--btn-edge: var(--cello-ink);
+}
+
+.btn--mint {
+	--btn-bg: var(--mint);
+	--btn-fg: var(--cello);
+	--btn-edge: var(--mint-shadow);
 }
 
 .btn--lg {
 	font-size: var(--fs-md);
-	padding: 0.8em 1.7em;
+	padding: 0.95em 1.9em;
+	border-radius: var(--r-lg);
+}
+
+.btn--xl {
+	font-size: var(--fs-lg);
+	padding: 0.9em 2.1em;
+	border-radius: var(--r-lg);
+	--lift: 8px;
 }
 
 .btn--sm {
 	font-size: var(--fs-xs);
-	padding: 0.45em 0.95em;
+	padding: 0.5em 1em;
+	border-radius: var(--r-tab);
+	--lift: 4px;
 }
 
 .btn--block {
 	width: 100%;
 }
 
-/* ---------- Chips / toggles ---------- */
-.chip {
+/* ---------- Tabs: square-ish filter controls for the menus ---------- */
+.tab {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--s-2);
-	padding: 0.32em 0.8em;
-	border-radius: var(--r-full);
-	border: var(--border);
+	padding: 0.5em 0.95em;
+	border-radius: var(--r-tab);
+	border: 2px solid var(--surface-line);
 	background: var(--bg-raised);
+	font-family: var(--font-display);
 	font-size: var(--fs-xs);
-	font-weight: 600;
+	font-weight: 700;
 	color: var(--ink-muted);
 	cursor: pointer;
+	box-shadow: 0 3px 0 var(--surface-line);
 	transition:
+		transform 90ms var(--ease-out),
+		box-shadow 90ms var(--ease-out),
 		background var(--t-fast) var(--ease-out),
 		color var(--t-fast) var(--ease-out),
-		border-color var(--t-fast) var(--ease-out),
-		transform var(--t-fast) var(--ease-spring);
+		border-color var(--t-fast) var(--ease-out);
 }
 
-.chip:hover {
-	transform: translateY(-1px);
+.tab:hover {
+	border-color: var(--aqua-deep);
+	color: var(--cello);
+}
+
+.tab:active {
+	transform: translateY(3px);
+	box-shadow: 0 0 0 var(--surface-line);
+}
+
+.tab[aria-pressed='true'],
+.tab.is-on {
+	background: var(--cello);
+	border-color: var(--cello);
+	color: #ffffff;
+	box-shadow: 0 3px 0 var(--cello-ink);
+}
+
+.tab--aqua[aria-pressed='true'] {
+	background: var(--aqua);
+	border-color: var(--aqua-deep);
+	color: var(--cello-ink);
+	box-shadow: 0 3px 0 var(--aqua-deep);
+}
+
+/* ---------- Tile: the menu button of the whole app ---------- */
+.tile {
+	position: relative;
+	display: block;
+	padding: var(--s-5);
+	background: var(--bg-raised);
+	border: 2px solid var(--surface-line);
+	border-radius: var(--r-tile);
+	box-shadow: var(--edge);
+	color: var(--ink);
+	overflow: hidden;
+	transition:
+		transform 130ms var(--ease-spring),
+		box-shadow 130ms var(--ease-out),
+		border-color var(--t-fast) var(--ease-out);
+}
+
+.tile:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 calc(var(--lift) + 4px) 0 var(--surface-line-strong), var(--sh-2);
 	border-color: var(--aqua-deep);
 }
 
-.chip[aria-pressed='true'],
-.chip.is-on {
-	background: var(--cello);
-	border-color: var(--cello);
-	color: var(--mint);
-}
-
-.chip--static {
-	cursor: default;
-}
-.chip--static:hover {
-	transform: none;
+.tile:active {
+	transform: translateY(2px);
+	box-shadow: 0 2px 0 var(--surface-line-strong);
 }
 
 /* ---------- Tag ---------- */
@@ -180,7 +227,7 @@
 	width: 100%;
 	padding: 0.7em 1em;
 	background: var(--bg-raised);
-	border: 2px solid var(--surface-line);
+	border: 3px solid var(--surface-line);
 	border-radius: var(--r-md);
 	transition:
 		border-color var(--t-fast) var(--ease-out),
@@ -199,10 +246,12 @@
 
 .field--answer {
 	font-family: var(--font-display);
-	font-size: var(--fs-xl);
+	font-size: var(--fs-2xl);
+	font-weight: 700;
 	text-align: center;
 	letter-spacing: 0.06em;
-	padding-block: 0.5em;
+	padding-block: 0.42em;
+	box-shadow: 0 5px 0 var(--surface-line);
 }
 
 .field--ok {
@@ -273,4 +322,66 @@
 }
 .scroll::-webkit-scrollbar-track {
 	background: transparent;
+}
+
+
+/* ---------- Section heading used across the menus ---------- */
+.menu-head {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: var(--s-5);
+	flex-wrap: wrap;
+}
+
+.menu-head h1,
+.menu-head h2 {
+	font-size: var(--fs-3xl);
+	max-width: 18ch;
+}
+
+/* ---------- Rail: horizontal menu strip, kills verticality ---------- */
+.rail {
+	display: flex;
+	gap: var(--s-3);
+	overflow-x: auto;
+	padding-block: var(--s-2) var(--s-4);
+	scroll-snap-type: x proximity;
+	scrollbar-width: thin;
+}
+
+.rail > * {
+	scroll-snap-align: start;
+	flex: 0 0 auto;
+}
+
+/* ---------- Bubble: what Zeko says ---------- */
+.bubble {
+	position: relative;
+	padding: var(--s-3) var(--s-4);
+	background: var(--bg-raised);
+	border: 2px solid var(--surface-line);
+	border-radius: var(--r-lg);
+	box-shadow: 0 4px 0 var(--surface-line);
+	font-family: var(--font-display);
+	font-size: var(--fs-sm);
+	font-weight: 700;
+	color: var(--ink-strong);
+	line-height: var(--lh-snug);
+}
+
+.bubble::after,
+.bubble::before {
+	content: '';
+	position: absolute;
+	bottom: -12px;
+	left: 28px;
+	border: 12px solid transparent;
+	border-top-color: var(--surface-line);
+	border-bottom: 0;
+}
+
+.bubble::after {
+	bottom: -8px;
+	border-top-color: var(--bg-raised);
 }

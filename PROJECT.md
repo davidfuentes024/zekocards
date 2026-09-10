@@ -57,7 +57,8 @@ src/
       random.js     ⚠ CORE     weighted, non-repeating prompt selection
       drill.svelte.js          shared session bookkeeping for every game
       speech.js                Web Speech synthesis (ja-JP), degrades silently
-    components/                Icon, Zeko, Scenery, Petals, Button, Panel,
+    components/                Icon, Zeko, ZekoSpeak, ZekoPeek, Scenery,
+                               Petals, Motif, Reveal, Modal, Button, Panel,
                                SoundCard, KanaColumn, CardDetail, KanaKeypad,
                                RomajiInput, DrillFrame, MasteryRing
     games/                     one component per drill
@@ -130,6 +131,22 @@ route entries and the hub build themselves from the roster.
 
 ---
 
+## 5b. The visual layer (added in the redesign)
+
+| Component | Purpose |
+|---|---|
+| `Reveal.svelte` | Scroll-in choreography with an IntersectionObserver, a scroll fallback **and** a 2.5s safety timer so content can never stay hidden. |
+| `Modal.svelte` | The only overlay pattern: centred, bordered, `Escape` closes. Card detail and kanji detail both use it. |
+| `Motif.svelte` | CSS-only Japanese motifs (torii, koi, lantern, sakura, fan, daruma, cloud, onigiri, wave) drawn on a 100×100 stage and scaled. |
+| `ZekoSpeak.svelte` | Interactive mascot: bubble + poke-to-cycle mood and line. Used on home, cards, hall, dictionary, kanji, progress. |
+| `ZekoPeek.svelte` | Mascot leaning in from a page edge, decorative only. |
+
+Page shapes: **home** is a full-viewport hero + staggered step cards + a
+horizontal drills rail + a stat strip + the letter; **cards** is a HUD +
+preset rail + sticky control bar + one tab-switched kana table; **hall**,
+**dictionary**, **kanji** and **progress** are menus (segmented switches,
+topic rails, tab boards) rather than vertical stacks.
+
 ## 6. Rules for future work
 
 **Do not touch / do not break**
@@ -144,7 +161,12 @@ route entries and the hub build themselves from the roster.
 6. Static output. The app must keep building with `adapter-static` and running
    from `file:`-adjacent hosting with no server.
 7. The identity rules in `IDENTITY.md` — palette, fonts, icon family, Zeko,
-   no emoji, no generic gradients.
+   no emoji, no generic gradients, the game-piece button language, the
+   menu-not-document layout law.
+9. The letter is the *only* place the free/local/no-account position is
+   stated. Do not scatter it back through the UI.
+10. `Reveal` must keep its safety net. Never ship a reveal that can leave
+    content permanently invisible.
 8. Zeko's scale contract: mood animations belong on the wrapper element.
 
 **Safe to extend**

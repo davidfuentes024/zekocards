@@ -41,6 +41,12 @@ not a gamified app.
 Derived tints (`--mint-deep`, `--aqua-soft`, `--wedge-deep`, `--cello-ink`, …)
 are all mixed from these four and live in `src/lib/styles/tokens.css`.
 
+**How the palette is applied (revised):** the page ground is near-white
+(`--bg: #fdfffc`), and Menta is used as the *tint* — section bands, sunken
+surfaces, card metadata rows. The app must read as white paper with mint and
+aqua accents, never as a blue-green wash. `--bg-tint` and `--bg-sunken` carry
+the colour; large flat areas do not.
+
 **The single exception:** `--hanko` `#C4573F`, a vermilion borrowed from the
 Japanese seal stamp. It exists only so "wrong" is distinguishable from "right"
 for colour-blind and low-vision users. It is used **only** for error states and
@@ -59,6 +65,15 @@ Rules:
 - **Display / headings / mascot:** `Zen Maru Gothic` (rounded, friendly, has kana).
 - **UI / body:** `Zen Kaku Gothic New`.
 - **Japanese text:** `Zen Maru Gothic` via the `.jp` class, always.
+
+Scale rules:
+- This is a learning toy, not a document. Base body text is `1.125rem`,
+  headings are large and tight, and the display face carries weight 700–800.
+  If a screen starts to read like a Word document, the type is too small.
+- Headings may break lines by hand for rhythm; one clause per line.
+- A key phrase in a heading may be wrapped in `<em>` — it renders in
+  `--wedge` with an aqua highlight bar behind it. That is the only
+  decorative type treatment allowed.
 
 Rules:
 - Headings are tight (`--lh-tight`), body is generous (`--lh-body`).
@@ -83,11 +98,51 @@ Zeko is a **Japanese macaque** built entirely from CSS boxes
   wrapper element** — putting them on `.stage` overwrites the scale transform.
 
 Rules:
-- Zeko never speaks in the first person, never nags, never guilt-trips.
+- Zeko never nags and never guilt-trips.
 - Zeko reacts, he does not reward. No confetti, no coins, no badges.
 - Zeko is never redrawn in a different medium (no illustration, no PNG).
+- **Zeko is present and interactive on every main screen** via
+  `ZekoSpeak.svelte`: a speech bubble plus a poke target that cycles his mood
+  and his line. Lines are page-specific, short, and dry. In drills he reacts
+  to the answer (`そう！` / `ちがう`) from `DrillFrame`.
 
 ---
+
+## 4b. Surfaces, buttons and menus — the game-piece language
+
+Everything interactive is a solid object with a visible bottom edge; it
+depresses when pressed. This is the whole reason the app does not read as a
+document.
+
+- `.btn` — chunky, coloured, `box-shadow: 0 var(--lift) 0 <edge>`, and on
+  `:active` it translates down by `--lift` and loses the shadow. Variants:
+  solid (Wedgewood), `--soft` (aqua), `--ink` (Cello), `--ghost` (white),
+  sizes `--sm --lg --xl`.
+- `.tab` — square-ish (`--r-tab`) filter control with a 3px bottom edge.
+  Filters are **never** pill-shaped and never fully rounded.
+- `.tile` — the menu button of the app: thick border, `--r-tile` radius,
+  bottom edge, lifts and rotates slightly on hover.
+- `.seg` — segmented switch used for script and level选択.
+- Panels and cards use 2–3px borders and a solid bottom edge, not soft
+  drop-shadows alone.
+
+**Layout law:** every main screen is a *menu*, not a stacked document.
+Horizontal rails (`.rail`), tab-switched groups and staggered grids are the
+default; long vertical stacks of full-width panels are not. Blocks are
+deliberately knocked off the grid line (`.tilt-l`, `.nudge-down`, per-child
+`margin-top`), so nothing lines up like a form.
+
+## 4c. Choreography
+
+- `Reveal.svelte` drifts blocks in as they enter the viewport (up / left /
+  right / scale / tilt), staggered by index. It always carries a visibility
+  safety net: content must never stay invisible if observers fail.
+- Modals (`Modal.svelte`) are **centred floating panels**. Side drawers are
+  not used anywhere in this product.
+- `Motif.svelte` scatters CSS-drawn Japanese objects (torii, koi, lantern,
+  sakura, fan, daruma, cloud, onigiri, wave) around every screen at odd
+  angles and low opacity. Each page gets its own motifs, matched to its
+  subject.
 
 ## 5. Iconography
 
@@ -127,6 +182,12 @@ says what the app does and refuses to do.
 
 No exclamation-mark enthusiasm, no streak guilt, no "don't lose your progress"
 pressure, no dark patterns of any kind.
+
+**Do not advertise the ethics.** The app is free, accountless and local-only,
+but that is not a slogan and must not be repeated across the interface. It is
+stated once, in the letter (`#letter` on the home page, opened from a small
+envelope and linked discreetly from the footer). Everywhere else the app just
+teaches.
 
 ---
 

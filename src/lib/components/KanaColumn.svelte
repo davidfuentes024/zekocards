@@ -52,7 +52,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--s-3);
-		min-width: 148px;
+		width: 172px;
 	}
 
 	.col-head {
@@ -60,30 +60,38 @@
 		grid-template-columns: 1fr auto;
 		align-items: center;
 		gap: 2px var(--s-2);
-		padding: var(--s-2) var(--s-3);
+		padding: var(--s-3);
 		background: var(--bg-raised);
-		border: 2px solid var(--surface-line);
+		border: 3px solid var(--surface-line);
 		border-radius: var(--r-md);
+		box-shadow: 0 5px 0 var(--surface-line-strong);
 		cursor: pointer;
 		text-align: left;
 		transition:
 			background var(--t-fast) var(--ease-out),
 			border-color var(--t-fast) var(--ease-out),
-			transform var(--t-fast) var(--ease-spring);
+			transform 120ms var(--ease-spring),
+			box-shadow 120ms var(--ease-out);
 	}
 	.col-head:hover {
-		transform: translateY(-2px);
+		transform: translateY(-3px);
 		border-color: var(--aqua-deep);
+		box-shadow: 0 8px 0 var(--surface-line-strong);
+	}
+	.col-head:active {
+		transform: translateY(2px);
+		box-shadow: 0 2px 0 var(--surface-line-strong);
 	}
 	.col-head.is-on {
 		background: var(--aqua);
 		border-color: var(--aqua-deep);
+		box-shadow: 0 5px 0 var(--aqua-deep);
 	}
 
 	.label {
 		font-family: var(--font-display);
-		font-weight: 700;
-		font-size: var(--fs-sm);
+		font-weight: 800;
+		font-size: var(--fs-md);
 		letter-spacing: var(--tracking-wide);
 		color: var(--ink-strong);
 	}
@@ -101,27 +109,34 @@
 		grid-column: 2;
 		display: grid;
 		place-items: center;
-		width: 22px;
-		height: 22px;
-		border-radius: 50%;
-		background: var(--bg-sunken);
+		width: 28px;
+		height: 28px;
+		border-radius: var(--r-sm);
+		background: var(--bg-tint);
 		color: var(--wedge-deep);
 	}
 	.is-on .mark {
 		background: var(--cello);
-		color: var(--mint);
+		color: #fff;
 	}
 	.count {
 		grid-row: 2;
 		grid-column: 2;
+		font-family: var(--font-display);
 		font-size: var(--fs-2xs);
-		font-weight: 700;
+		font-weight: 800;
 		color: var(--ink-muted);
 		text-align: right;
 	}
 
 	.cards {
 		display: grid;
-		gap: var(--s-2);
+		gap: var(--s-3);
+	}
+
+	@media (max-width: 720px) {
+		.col {
+			width: 146px;
+		}
 	}
 </style>
