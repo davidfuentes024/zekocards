@@ -9,6 +9,11 @@
 	import '$lib/styles/components.css';
 	import '$lib/styles/animations.css';
 
+  import { dev } from '$app/environment';
+
+	import { injectAnalytics } from '@vercel/analytics/sveltekit';
+	injectAnalytics({ mode: dev ? 'development' : 'production' });
+
 	import { page } from '$app/stores';
 	import Icon from '$lib/components/Icon.svelte';
 	import Petals from '$lib/components/Petals.svelte';
