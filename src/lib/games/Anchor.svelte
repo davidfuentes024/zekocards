@@ -9,9 +9,9 @@
 	import { stats, weightOf } from '$lib/stores/progress.js';
 	import { createDrill } from '$lib/utils/drill.svelte.js';
 	import { nextPrompt } from '$lib/utils/random.js';
-	import { say } from '$lib/utils/speech.js';
+	import { play as say } from '$lib/utils/audio.js';
 
-	const drill = createDrill({ goal: 20 });
+	const drill = createDrill({ goal: 20, seconds: 10 });
 
 	let current = $state(null);
 	let wrongId = $state(null);
@@ -22,12 +22,21 @@
 
 	const pad = $derived(scriptSounds($script));
 	const pool = $derived(
-		Object.keys($anchors)
+		Object.keys($anchors[$script] ?? {})
 			.map((id) => SOUND_BY_ID.get(id))
 			.filter(Boolean)
 			.filter((s) => $selectedSounds.has(s.id))
 			.filter((s) => glyphOf(s, $script))
 	);
+
+	/* The clock is part of the question. Running out is a miss — and the
+	   symbol still has to be produced before anything moves on. */
+	drill.onTimeout = () => {
+		if (!current || locked || missed) return;
+		missed = true;
+		drill.answer(current.id, false);
+		okId = current.id;
+	};
 
 	function next() {
 		if (!pool.length) return;
@@ -43,6 +52,9 @@
 	}
 
 	$effect(() => {
+		/* Switching script swaps the whole anchor set: a question from the
+		   other script has no note here, so it is dropped. */
+		if (current && !pool.some((s) => s.id === current.id)) current = null;
 		if (!current && pool.length) next();
 	});
 
@@ -64,21 +76,23 @@
 		setTimeout(() => (wrongId = null), 420);
 	}
 
-	const note = $derived(current ? $anchors[current.id] : null);
+	const note = $derived(current ? ($anchors[$script]?.[current.id] ?? null) : null);
 </script>
 
 <DrillFrame
 	title="Anchor Recall"
 	jp="連想"
-	hint="Your own association, played back with the symbol removed."
+	hint="Your note is the clue."
 	asked={drill.asked}
 	correct={drill.correct}
 	streak={drill.streak}
 	best={drill.best}
 	goal={drill.goal}
 	feedback={drill.feedback}
+	remainingMs={drill.remainingMs}
+	budgetMs={drill.budgetMs}
 >
-	{#if current}
+	{#if current && note}
 		<blockquote>
 			<Icon name="brush" size={22} />
 			<div>

@@ -55,6 +55,7 @@ src/
       kanji-core.js            the 1000 most frequent kanji (generated)
       games.js                 the drill roster (id, title, icon, needs)
     stores/
+      difficulty.js ⚠ CORE     the three dials: clock · pad order · pad scope
       persisted.js  ⚠ CORE     localStorage-backed writable + Set bridge
       selection.js  ⚠ CORE     selectedSounds, script, derived readable words
       progress.js   ⚠ CORE     per-sound mastery, weighting, history, streaks
@@ -135,9 +136,24 @@ refuses to repeat the last few items.
 **The two rules every drill obeys**
 
 1. **Prompts** only ever come from the learner's selection.
-2. **Distractors** are the entire script, always — never the selection. A
-   symbol can therefore never be identified by elimination, by position, or by
-   the order of the pad.
+2. **Distractors** are a complete section of the script, always — never the
+   selection. A symbol can therefore never be identified by elimination or by
+   the shape of the options.
+
+**Difficulty — three dials** (`stores/difficulty.js`, see `IDENTITY.md` §1b)
+
+| Dial | Options | Effect |
+|---|---|---|
+| clock | none · generous ×1.8 · standard · merciless ×0.6 | Scales the `seconds` each drill declares. Running out is a miss, not a skip. Sixty Seconds is only ever loosened, never switched off — without a clock it stops being a drill. |
+| pad order | gojūon grid · shuffled | The grid is the kana table itself, one row per column, each sound under its own vowel, the row named beside it. Same keys, navigable. |
+| pad scope | section · whole script | `padGroups()` in `kana.js` returns every **complete group** the selection reaches into, in the order gojūon → dakuten → yōon → extended. It never narrows to the selection. |
+
+Presets: **稽古 Learn** · **標準 Standard** (default) · **鬼 Oni** (the original
+behaviour). `DifficultyBoard.svelte` renders them; it lives on `/practice` and
+behind the gear in every `DrillFrame`.
+
+`KanaKeypad.svelte` reads the dials itself, so a drill still just passes it
+`sounds` and `script` — no game file needs to know the settings exist.
 
 **Adding a drill:** create `src/lib/games/X.svelte` using `createDrill()` +
 `DrillFrame`, add an entry to `src/lib/data/games.js`, register it in
@@ -170,7 +186,9 @@ topic rails, tab boards) rather than vertical stacks.
 2. Sound ids and the `zekocards:v1:` localStorage namespace. Changing either
    silently erases every existing learner's progress. If the shape must change,
    bump to `v2` **and migrate**, never overwrite.
-3. The no-multiple-choice rule. Answer pads show the full selected set.
+3. The no-multiple-choice rule. Answer pads show a complete section of the
+   script and never shrink to the selection. The *order* of the pad and the
+   *number of groups* it covers are dials; its being complete is not.
 4. The forced-repetition loop: a miss must cost a repetition, not a life. A
    wrong answer never advances the question — the correct symbol must still be
    produced.

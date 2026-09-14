@@ -4,9 +4,9 @@
 	import Motif from '$lib/components/Motif.svelte';
 	import Reveal from '$lib/components/Reveal.svelte';
 	import MasteryRing from '$lib/components/MasteryRing.svelte';
-	import { ALL_COLUMNS, SOUND_BY_ID } from '$lib/data/kana.js';
+	import { ALL_COLUMNS, SOUND_BY_ID, glyphOf } from '$lib/data/kana.js';
 	import { stats, totals, overall, dayStreak, last30, MAX_LEVEL } from '$lib/stores/progress.js';
-	import { anchors, clearAnchor } from '$lib/stores/associations.js';
+	import { anchors, anchorCount, clearAnchor } from '$lib/stores/associations.js';
 	import { settings, updateSetting } from '$lib/stores/settings.js';
 	import { script } from '$lib/stores/selection.js';
 	import { clearAll } from '$lib/stores/persisted.js';
@@ -112,7 +112,7 @@
 			<Reveal from="tilt" delay={240}>
 				<div class="score">
 					<Icon name="pencil" size={24} />
-					<strong>{Object.keys($anchors).length}</strong><span>anchors</span>
+					<strong>{$anchorCount}</strong><span>anchors</span>
 					<small>your own words</small>
 				</div>
 			</Reveal>
@@ -181,22 +181,24 @@
 					{/each}
 				</div>
 			{:else if panel === 'anchors'}
-				{#if Object.keys($anchors).length}
+				{#if $anchorCount}
 					<ul class="anchors">
-						{#each Object.entries($anchors) as [id, a] (id)}
-							{@const s = SOUND_BY_ID.get(id)}
-							{#if s}
-								<li>
-									<span class="jp glyph">{$script === 'hiragana' ? (s.h ?? s.k) : (s.k ?? s.h)}</span>
-									<div>
-										<strong>{a.word}</strong>
-										{#if a.note}<p class="muted">{a.note}</p>{/if}
-									</div>
-									<button class="icon-btn" onclick={() => clearAnchor(id)} aria-label="Delete anchor">
-										<Icon name="trash" size={17} />
-									</button>
-								</li>
-							{/if}
+						{#each ['hiragana', 'katakana'] as sc (sc)}
+							{#each Object.entries($anchors[sc] ?? {}) as [id, a] (sc + id)}
+								{@const s = SOUND_BY_ID.get(id)}
+								{#if s && glyphOf(s, sc)}
+									<li>
+										<span class="jp glyph" title={sc}>{glyphOf(s, sc)}</span>
+										<div>
+											<strong>{a.word}</strong>
+											{#if a.note}<p class="muted">{a.note}</p>{/if}
+										</div>
+										<button class="icon-btn" onclick={() => clearAnchor(sc, id)} aria-label="Delete anchor">
+											<Icon name="trash" size={17} />
+										</button>
+									</li>
+								{/if}
+							{/each}
 						{/each}
 					</ul>
 				{:else}

@@ -9,9 +9,9 @@
 	import { createDrill } from '$lib/utils/drill.svelte.js';
 	import { nextPrompt } from '$lib/utils/random.js';
 	import { checkMeaning } from '$lib/utils/answer.js';
-	import { say } from '$lib/utils/speech.js';
+	import { play as say } from '$lib/utils/audio.js';
 
-	const drill = createDrill({ goal: 20 });
+	const drill = createDrill({ goal: 20, seconds: 15 });
 
 	let current = $state(null);
 	let value = $state('');
@@ -23,6 +23,17 @@
 	function wordWeight(w) {
 		return w.soundIds.reduce((sum, id) => sum + weightOf(id, $stats), 0) / w.soundIds.length;
 	}
+
+	/* Out of time is a wrong answer; the meaning is then shown, and the
+	   question still does not move on until it is typed. */
+	drill.onTimeout = () => {
+		if (!current || revealed) return;
+		drill.answer(current.soundIds, false);
+		status = 'bad';
+		revealed = true;
+		say(current.kana);
+		setTimeout(next, 2200);
+	};
 
 	function next() {
 		if (!pool.length) return;
@@ -53,13 +64,15 @@
 <DrillFrame
 	title="Reading → Meaning"
 	jp="意味"
-	hint="Read it in your head first. Then type what it means in English."
+	hint="Type what it means in English."
 	asked={drill.asked}
 	correct={drill.correct}
 	streak={drill.streak}
 	best={drill.best}
 	goal={drill.goal}
 	feedback={drill.feedback}
+	remainingMs={drill.remainingMs}
+	budgetMs={drill.budgetMs}
 >
 	{#if current}
 		<div class="prompt">

@@ -3,17 +3,17 @@
 	   line where the learner writes their own anchor word. */
 	import Icon from './Icon.svelte';
 	import MasteryRing from './MasteryRing.svelte';
-	import { anchors, setAnchor, clearAnchor } from '$lib/stores/associations.js';
+	import { anchors, anchorFor, setAnchor, clearAnchor } from '$lib/stores/associations.js';
 	import { stats, MAX_LEVEL } from '$lib/stores/progress.js';
 	import { selectedSounds } from '$lib/stores/selection.js';
 	import { wordsUsing } from '$lib/data/dictionary.js';
-	import { say } from '$lib/utils/speech.js';
+	import { play as say } from '$lib/utils/audio.js';
 
 	let { sound = null, script = 'hiragana', onClose = () => {}, onToggle = () => {} } = $props();
 
 	let onlySelected = $state(true);
 
-	const anchor = $derived(sound ? ($anchors[sound.id] ?? { word: '', note: '' }) : null);
+	const anchor = $derived(sound ? (anchorFor($anchors, script, sound.id) ?? { word: '', note: '' }) : null);
 	const stat = $derived(sound ? ($stats[sound.id] ?? { seen: 0, ok: 0, bad: 0, level: 0, best: 0 }) : null);
 	const examples = $derived(
 		sound ? wordsUsing(sound.id, onlySelected ? $selectedSounds : null).slice(0, 40) : []
@@ -21,10 +21,10 @@
 	const isOn = $derived(sound ? $selectedSounds.has(sound.id) : false);
 
 	function saveWord(e) {
-		setAnchor(sound.id, { word: e.currentTarget.value });
+		setAnchor(script, sound.id, { word: e.currentTarget.value });
 	}
 	function saveNote(e) {
-		setAnchor(sound.id, { note: e.currentTarget.value });
+		setAnchor(script, sound.id, { note: e.currentTarget.value });
 	}
 </script>
 
@@ -85,7 +85,7 @@
 				oninput={saveNote}
 			></textarea>
 			{#if anchor.word || anchor.note}
-				<button class="btn btn--ghost btn--sm" onclick={() => clearAnchor(sound.id)}>
+				<button class="btn btn--ghost btn--sm" onclick={() => clearAnchor(script, sound.id)}>
 					<Icon name="trash" size={15} /> clear anchor
 				</button>
 			{/if}

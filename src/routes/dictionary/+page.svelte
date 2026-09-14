@@ -3,9 +3,10 @@
 	import ZekoSpeak from '$lib/components/ZekoSpeak.svelte';
 	import Motif from '$lib/components/Motif.svelte';
 	import Reveal from '$lib/components/Reveal.svelte';
+	import Pager from '$lib/components/Pager.svelte';
 	import { WORDS, TAGS, TAG_LABELS } from '$lib/data/dictionary.js';
 	import { selectedSounds } from '$lib/stores/selection.js';
-	import { say } from '$lib/utils/speech.js';
+	import { play as say } from '$lib/utils/audio.js';
 	import { romajiFromKana } from '$lib/utils/answer.js';
 
 	let q = $state('');
@@ -13,9 +14,11 @@
 	let scriptFilter = $state('all');
 	let onlyMine = $state(false);
 	let level = $state('all');
-	let limit = $state(60);
+	let page = $state(1);
+	const PER_PAGE = 60;
+	let listTop;
 
-	const LEVELS = ['all', 'n5', 'n4', 'n3', 'n2'];
+	const LEVELS = ['all', 'n5', 'n4', 'n3', 'n2', 'n1'];
 
 	const TAG_MOTIF = {
 		nature: 'sakura',
@@ -49,7 +52,12 @@
 		});
 	});
 
-	const shown = $derived(filtered.slice(0, limit));
+	const pages = $derived(Math.max(1, Math.ceil(filtered.length / PER_PAGE)));
+	const shown = $derived(filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE));
+
+	function turned() {
+		listTop?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	}
 
 	$effect(() => {
 		q;
@@ -57,7 +65,7 @@
 		level;
 		scriptFilter;
 		onlyMine;
-		limit = 60;
+		page = 1;
 	});
 </script>
 
@@ -148,7 +156,7 @@
 		</div>
 
 		{#if shown.length}
-			<div class="list">
+			<div class="list" bind:this={listTop}>
 				{#each shown as w, i (w.id)}
 					<Reveal from="up" delay={Math.min(i, 8) * 40} distance={26}>
 						<article class="entry" class:kata={w.script === 'katakana'}>
@@ -168,13 +176,7 @@
 				{/each}
 			</div>
 
-			{#if filtered.length > shown.length}
-				<div class="more">
-					<button class="btn btn--ghost btn--lg" onclick={() => (limit += 80)}>
-						<Icon name="chevronDown" size={18} /> show more ({filtered.length - shown.length} left)
-					</button>
-				</div>
-			{/if}
+			<Pager bind:page {pages} onChange={turned} />
 		{:else}
 			<div class="empty panel">
 				<ZekoSpeak size={130} mood="think" lines={['Nothing matches that yet.']} />
@@ -189,6 +191,10 @@
 </section>
 
 <style>
+	.list {
+		scroll-margin-top: 110px;
+	}
+
 	.dict {
 		position: relative;
 		padding-block: var(--s-6) var(--s-8);
@@ -418,11 +424,6 @@
 		box-shadow: none;
 	}
 
-	.more {
-		display: flex;
-		justify-content: center;
-		margin-top: var(--s-5);
-	}
 	.empty {
 		display: grid;
 		justify-items: center;

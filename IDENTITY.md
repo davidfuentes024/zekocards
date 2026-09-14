@@ -25,8 +25,44 @@ not a gamified app.
 | No network dependency | The app must keep working with the network switched off. |
 | English UI, Japanese subject | Interface language is English; the content taught is Japanese. |
 | Nothing outside the selection | No exercise may ever show a sound or word the learner has not selected. |
-| No elimination answers | Never a shortlist. The answer pad always shows **every symbol in the script**, reshuffled every question. |
+| No elimination answers | Never a shortlist. The answer pad always shows a **complete section of the script** — see §1b. |
 | Answers are Japanese | Answers are given as kana, or as an English meaning. **Romaji is never a valid answer** — typing "ka" trains the wrong skill. |
+
+---
+
+## 1b. Amendment — the pad, and what "hard" means
+
+*Amended once, deliberately, on the owner's instruction. The promise did not
+change; the mechanism did.*
+
+The original wording made **reshuffling** part of the law: the pad showed every
+symbol in the script, in a new order every question. In practice that turned a
+question about *recall* into a task of *visual search* across 104 tiles. The
+learner was not being asked whether they knew き; they were being asked to find
+it. That is confusion, not difficulty, and it is not what this app is for.
+
+The promise the rule exists to keep is **"no shortlist"** — the answer must never
+be findable by elimination, by position, or by the shape of the options. That
+promise survives untouched. What is now adjustable is how the same complete set
+of symbols is *presented*:
+
+| Dial | Options | Why it cannot give an answer away |
+|---|---|---|
+| **Clock** | none · generous · standard · merciless | Time pressure is orthogonal to the answer. Running out is a miss, never a skip. |
+| **Pad order** | gojūon grid · shuffled | The grid holds exactly the same keys. Knowing that き sits in the か row, い column **is** Japanese literacy — it is how dictionaries, conjugation tables and the Japanese keyboard are organised. Ordering the pad teaches; it does not tell. |
+| **Pad scope** | section · whole script | "Section" is every **complete group** the learner's selection reaches into — 46, then 71, then 104, then 128. It is a public rule about the learner, never about the answer, so no information leaks from it. It never narrows to the selection. |
+
+Three presets carry the dials: **稽古 Learn**, **標準 Standard** (the default) and
+**鬼 Oni** — Oni being the original behaviour, kept exactly as it was.
+
+**What no dial may ever change**, and what the rest of this document still
+governs absolutely:
+
+- the pad is never a shortlist, and never shrinks to the learner's selection;
+- a wrong answer never advances the question, and the right symbol must still
+  be produced;
+- romaji is never a valid answer;
+- nothing outside the selection is ever *asked*.
 
 ---
 

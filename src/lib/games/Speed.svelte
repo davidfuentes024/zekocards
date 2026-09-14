@@ -10,12 +10,15 @@
 	import { createDrill } from '$lib/utils/drill.svelte.js';
 	import { nextPrompt } from '$lib/utils/random.js';
 	import { persisted } from '$lib/stores/persisted.js';
+	import { clockFactor, secondsUnder } from '$lib/stores/difficulty.js';
 
 	const drill = createDrill({ goal: 60 });
 	const record60 = persisted('speed-record', 0);
 
-	const DURATION = 60;
-	let left = $state(DURATION);
+	/* The run is always on a clock — that is the drill — but the dial decides
+	   how long it is. "No clock" loosens it to the generous setting. */
+	const DURATION = $derived(secondsUnder(60, $clockFactor, { clockIsTheGame: true }));
+	let left = $state(60);
 	let running = $state(false);
 	let done = $state(false);
 	let current = $state(null);
@@ -76,13 +79,15 @@
 <DrillFrame
 	title="Sixty Seconds"
 	jp="速読み"
-	hint="Audio only, full grid, one minute. Speed leaves no room for reasoning it out."
+	hint="Audio only, against the clock."
 	asked={drill.asked}
 	correct={drill.correct}
 	streak={drill.streak}
 	best={drill.best}
 	goal={DURATION}
 	feedback={drill.feedback}
+	remainingMs={drill.remainingMs}
+	budgetMs={drill.budgetMs}
 >
 	<div class="timer" class:low={left <= 10}>
 		<Icon name="clock" size={20} />

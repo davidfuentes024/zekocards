@@ -9,9 +9,9 @@
 	import { stats, weightOf } from '$lib/stores/progress.js';
 	import { createDrill } from '$lib/utils/drill.svelte.js';
 	import { nextPrompt } from '$lib/utils/random.js';
-	import { say } from '$lib/utils/speech.js';
+	import { play as say } from '$lib/utils/audio.js';
 
-	const drill = createDrill({ goal: 15 });
+	const drill = createDrill({ goal: 15, seconds: 25 });
 
 	let current = $state(null);
 	let built = $state('');
@@ -27,6 +27,14 @@
 	function wordWeight(w) {
 		return w.soundIds.reduce((s, id) => s + weightOf(id, $stats), 0) / w.soundIds.length;
 	}
+
+	/* Running out of time is a miss. The word still has to be spelled out. */
+	drill.onTimeout = () => {
+		if (!current || solved || missed) return;
+		missed = true;
+		drill.answer(current.soundIds, false);
+		nudge += 1;
+	};
 
 	function next() {
 		if (!pool.length) return;
@@ -51,12 +59,16 @@
 			built = attempt;
 			if (built === current.kana) {
 				solved = true;
-				drill.answer(current.soundIds, !missed);
+				if (missed) drill.setFeedback('ok');
+				else drill.answer(current.soundIds, true);
 				say(current.kana);
 				setTimeout(next, 950);
 			}
 		} else {
-			missed = true;
+			if (!missed) {
+				missed = true;
+				drill.answer(current.soundIds, false);
+			}
 			nudge += 1;
 			drill.setFeedback('bad');
 			setTimeout(() => drill.clearFeedback(), 380);
@@ -74,13 +86,15 @@
 <DrillFrame
 	title="Word Forge"
 	jp="組み立て"
-	hint="You get the meaning and nothing else. Spell the word from the full grid."
+	hint="Spell the word from its meaning."
 	asked={drill.asked}
 	correct={drill.correct}
 	streak={drill.streak}
 	best={drill.best}
 	goal={drill.goal}
 	feedback={drill.feedback}
+	remainingMs={drill.remainingMs}
+	budgetMs={drill.budgetMs}
 >
 	{#if current}
 		<div class="prompt">

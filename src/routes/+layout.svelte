@@ -21,6 +21,14 @@
 	import { settings } from '$lib/stores/settings.js';
 	import { selectionSummary } from '$lib/stores/selection.js';
 	import { dayStreak } from '$lib/stores/progress.js';
+	import { preload } from '$lib/utils/audio.js';
+
+	/* The kana sprite is smaller than one photograph and every audio drill
+	   depends on it, so it is warmed once for the whole session. Word and
+	   kanji sprites stay lazy. */
+	$effect(() => {
+		preload('kana');
+	});
 
 	let { children } = $props();
 	let open = $state(false);

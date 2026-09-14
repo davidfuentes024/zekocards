@@ -4,8 +4,9 @@
 	import Motif from '$lib/components/Motif.svelte';
 	import Reveal from '$lib/components/Reveal.svelte';
 	import { GAMES } from '$lib/data/games.js';
+	import DifficultyBoard from '$lib/components/DifficultyBoard.svelte';
 	import { selectionSummary, script, readableWords } from '$lib/stores/selection.js';
-	import { anchorCount } from '$lib/stores/associations.js';
+	import { anchors } from '$lib/stores/associations.js';
 	import { SCRIPTS } from '$lib/data/kana.js';
 	import { stats, overall } from '$lib/stores/progress.js';
 
@@ -14,13 +15,13 @@
 	function availability(g) {
 		if (g.needs === 'sounds') return $selectionSummary.sounds > 0;
 		if (g.needs === 'words') return wordsInScript > 0;
-		if (g.needs === 'anchors') return $anchorCount > 0;
+		if (g.needs === 'anchors') return Object.keys($anchors[$script] ?? {}).length > 0;
 		return true;
 	}
 	function reason(g) {
 		if (g.needs === 'sounds') return 'Select at least one sound on the Cards page.';
 		if (g.needs === 'words') return `No ${$script} words are readable with your selection yet.`;
-		if (g.needs === 'anchors') return 'Write an anchor on a card first.';
+		if (g.needs === 'anchors') return `Write a ${$script} anchor on a card first.`;
 		return '';
 	}
 
@@ -42,11 +43,12 @@
 				<span class="eyebrow">Training hall · 道場</span>
 				<h1>Same sounds.<br /><em>Nine angles.</em></h1>
 				<p class="lede">
-					Everything here is built from the {$selectionSummary.sounds} sound{$selectionSummary.sounds ===
-					1
-						? ''
-						: 's'} you picked. Nothing else can appear.
+					Built from the {$selectionSummary.sounds} sound{$selectionSummary.sounds === 1 ? '' : 's'} you picked.
 				</p>
+
+				<div class="difficulty panel">
+					<DifficultyBoard />
+				</div>
 
 				<div class="controls">
 					<div class="seg">
@@ -345,5 +347,12 @@
 		.grid {
 			grid-template-columns: 1fr;
 		}
+	}
+
+	.difficulty {
+		display: grid;
+		gap: var(--s-3);
+		margin: var(--s-4) 0;
+		max-width: 46rem;
 	}
 </style>

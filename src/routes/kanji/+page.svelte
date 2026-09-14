@@ -4,13 +4,17 @@
 	import Motif from '$lib/components/Motif.svelte';
 	import Modal from '$lib/components/Modal.svelte';
 	import Reveal from '$lib/components/Reveal.svelte';
+	import Pager from '$lib/components/Pager.svelte';
 	import { KANJI, KANJI_LEVELS } from '$lib/data/kanji.js';
-	import { say } from '$lib/utils/speech.js';
+	import { play as say } from '$lib/utils/audio.js';
 	import { romajiFromKana } from '$lib/utils/answer.js';
 
 	let q = $state('');
 	let level = $state('all');
 	let open = $state(null);
+	let page = $state(1);
+	const PER_PAGE = 60;
+	let gridTop;
 
 	const list = $derived(
 		KANJI.filter((k) => {
@@ -24,6 +28,19 @@
 			);
 		})
 	);
+
+	const pages = $derived(Math.max(1, Math.ceil(list.length / PER_PAGE)));
+	const shown = $derived(list.slice((page - 1) * PER_PAGE, page * PER_PAGE));
+
+	$effect(() => {
+		q;
+		level;
+		page = 1;
+	});
+
+	function turned() {
+		gridTop?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	}
 
 	const current = $derived(open ? KANJI.find((x) => x.id === open) : null);
 </script>
@@ -74,8 +91,8 @@
 			<a class="btn" href="/practice/kanji"><Icon name="seal" size={18} /> drill these</a>
 		</div>
 
-		<div class="grid">
-			{#each list as k, i (k.id)}
+		<div class="grid" bind:this={gridTop}>
+			{#each shown as k, i (k.id)}
 				<Reveal from="scale" delay={Math.min(i, 12) * 30}>
 					<button class="kt" class:is-on={open === k.id} onclick={() => (open = k.id)}>
 						<span class="glyph jp">{k.kanji}</span>
@@ -85,6 +102,8 @@
 				</Reveal>
 			{/each}
 		</div>
+
+		<Pager bind:page {pages} onChange={turned} />
 	</div>
 </section>
 
@@ -122,6 +141,10 @@
 </Modal>
 
 <style>
+	.grid {
+		scroll-margin-top: 110px;
+	}
+
 	.kj {
 		position: relative;
 		padding-block: var(--s-6) var(--s-8);

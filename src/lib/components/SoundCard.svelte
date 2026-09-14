@@ -1,6 +1,6 @@
 <script>
 	import Icon from './Icon.svelte';
-	import { say } from '$lib/utils/speech.js';
+	import { play as say } from '$lib/utils/audio.js';
 
 	let {
 		sound,

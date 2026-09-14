@@ -171,7 +171,7 @@
 							script={$script}
 							selectedIds={$selectedSounds}
 							statsMap={$stats}
-							anchorsMap={$anchors}
+							anchorsMap={$anchors[$script] ?? {}}
 							{exampleCounts}
 							showRomaji={$settings.showRomajiOnCards}
 							onToggleSound={toggleSound}

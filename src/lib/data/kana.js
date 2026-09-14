@@ -209,6 +209,71 @@ export function scriptSounds(script) {
 	return ALL_SOUNDS.filter((s) => (script === 'hiragana' ? s.h : s.k));
 }
 
+/* ---------------- The answer pad ----------------
+   The pad always holds a complete, publicly-defined section of the script.
+   That is what makes elimination impossible — not the order it is drawn in,
+   and not how many groups it covers. Both of those are display choices that
+   depend on the learner, never on the answer. */
+
+/** The order the groups are learned in. `section` scope walks this list. */
+export const GROUP_ORDER = ['gojuon', 'dakuten', 'yoon', 'extended'];
+
+/**
+ * The groups a pad covers.
+ * It grows in whole groups as the learner's selection reaches further in, so
+ * a beginner holding five vowels faces the 46 gojūon rather than all 128
+ * symbols — and still cannot tell which of the 46 is being asked for.
+ */
+export function padGroups(selectedIds, scope = 'section') {
+	if (scope === 'full') return GROUP_ORDER;
+	let reach = 0;
+	for (const id of selectedIds ?? []) {
+		const sound = SOUND_BY_ID.get(id);
+		const i = sound ? GROUP_ORDER.indexOf(sound.group) : -1;
+		if (i > reach) reach = i;
+	}
+	return GROUP_ORDER.slice(0, reach + 1);
+}
+
+/** The あいうえお column a sound belongs in, read off its own romaji. */
+export function vowelSlot(sound) {
+	for (let i = sound.r.length - 1; i >= 0; i -= 1) {
+		const v = 'aiueo'.indexOf(sound.r[i]);
+		if (v >= 0) return v;
+	}
+	return 0; // ん has no vowel and takes the first slot
+}
+
+/**
+ * Lay a set of sounds out as the kana table: one row per column of the
+ * script, every sound under its own vowel. When a column holds two sounds
+ * with the same vowel — ティ and ディ are both in the i column — the column
+ * simply continues on the next line rather than lying about where a symbol
+ * belongs.
+ */
+export function gridRows(sounds, script) {
+	const allowed = new Set(sounds.map((s) => s.id));
+	const rows = [];
+	for (const col of ALL_COLUMNS) {
+		let slots = [null, null, null, null, null];
+		let label = col.jp;
+		let used = false;
+		for (const s of col.sounds) {
+			if (!allowed.has(s.id) || !glyphOf(s, script)) continue;
+			const slot = vowelSlot(s);
+			if (slots[slot]) {
+				rows.push({ id: `${col.id}-${rows.length}`, label, slots });
+				slots = [null, null, null, null, null];
+				label = '';
+			}
+			slots[slot] = s;
+			used = true;
+		}
+		if (used) rows.push({ id: `${col.id}-${rows.length}`, label, slots });
+	}
+	return rows;
+}
+
 /** The glyph of a sound in a given script. */
 export function glyphOf(sound, script) {
 	return script === 'hiragana' ? sound.h : sound.k;

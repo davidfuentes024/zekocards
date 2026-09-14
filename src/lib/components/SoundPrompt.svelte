@@ -7,13 +7,16 @@
 	   impossible rather than hard.
 	   ============================================================ */
 	import Icon from './Icon.svelte';
-	import { say, hasJapaneseVoice } from '$lib/utils/speech.js';
+	import { play as say, hasClip, audioReady } from '$lib/utils/audio.js';
+	import { hasJapaneseVoice } from '$lib/utils/speech.js';
 	import { settings } from '$lib/stores/settings.js';
 
 	let { text = '', label = 'Listen', fallback = '', big = true, autoplay = true } = $props();
 
 	let plays = $state(0);
-	const mute = $derived(!hasJapaneseVoice());
+	/* The drill only has to reveal the answer when there is genuinely no
+	   way to hear it: no pre-rendered clip AND no Japanese system voice. */
+	const mute = $derived($audioReady ? !hasClip(text) && !hasJapaneseVoice() : !hasJapaneseVoice());
 
 	function play() {
 		plays += 1;

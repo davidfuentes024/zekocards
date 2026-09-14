@@ -10,9 +10,9 @@
 	import { stats, weightOf } from '$lib/stores/progress.js';
 	import { createDrill } from '$lib/utils/drill.svelte.js';
 	import { nextPrompt, pick as pickOne } from '$lib/utils/random.js';
-	import { say } from '$lib/utils/speech.js';
+	import { play as say } from '$lib/utils/audio.js';
 
-	const drill = createDrill({ goal: 24 });
+	const drill = createDrill({ goal: 24, seconds: 9 });
 
 	let current = $state(null);
 	let family = $state(null);
@@ -35,6 +35,15 @@
 				.filter((s) => s && s.h && s.k && $selectedSounds.has(s.id))
 		})).filter((set) => set.available.length >= 2)
 	);
+
+	/* The clock is part of the question. Running out is a miss — and the
+	   symbol still has to be produced before anything moves on. */
+	drill.onTimeout = () => {
+		if (!current || locked || missed) return;
+		missed = true;
+		drill.answer(current.id, false);
+		okId = current.id;
+	};
 
 	function next() {
 		if (!families.length) return;
@@ -76,13 +85,15 @@
 <DrillFrame
 	title="Look-alikes"
 	jp="紛らわしい字"
-	hint="These are the shapes everyone confuses. Identify the one you are shown, then produce it in the other script."
+	hint="Identify it, then produce it in the other script."
 	asked={drill.asked}
 	correct={drill.correct}
 	streak={drill.streak}
 	best={drill.best}
 	goal={drill.goal}
 	feedback={drill.feedback}
+	remainingMs={drill.remainingMs}
+	budgetMs={drill.budgetMs}
 >
 	{#if current && family}
 		<div class="prompt">

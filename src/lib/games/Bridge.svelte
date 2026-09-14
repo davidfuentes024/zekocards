@@ -9,9 +9,9 @@
 	import { stats, weightOf } from '$lib/stores/progress.js';
 	import { createDrill } from '$lib/utils/drill.svelte.js';
 	import { nextPrompt } from '$lib/utils/random.js';
-	import { say } from '$lib/utils/speech.js';
+	import { play as say } from '$lib/utils/audio.js';
 
-	const drill = createDrill({ goal: 30 });
+	const drill = createDrill({ goal: 30, seconds: 8 });
 
 	let current = $state(null);
 	let wrongId = $state(null);
@@ -25,6 +25,15 @@
 	const promptScript = $derived($script === 'hiragana' ? 'katakana' : 'hiragana');
 	const pad = $derived(scriptSounds(answerScript));
 	const pool = $derived($activeSounds.filter((s) => s.h && s.k));
+
+	/* The clock is part of the question. Running out is a miss — and the
+	   symbol still has to be produced before anything moves on. */
+	drill.onTimeout = () => {
+		if (!current || locked || missed) return;
+		missed = true;
+		drill.answer(current.id, false);
+		okId = current.id;
+	};
 
 	function next() {
 		if (!pool.length) return;
@@ -65,13 +74,15 @@
 <DrillFrame
 	title="Script Bridge"
 	jp="対応"
-	hint="Read the symbol on the left, then find the same sound in the other script. The pad holds every symbol."
+	hint="Find the same sound in the other script."
 	asked={drill.asked}
 	correct={drill.correct}
 	streak={drill.streak}
 	best={drill.best}
 	goal={drill.goal}
 	feedback={drill.feedback}
+	remainingMs={drill.remainingMs}
+	budgetMs={drill.budgetMs}
 >
 	{#if current}
 		<div class="prompt">

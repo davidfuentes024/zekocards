@@ -2,6 +2,9 @@
 	import Icon from './Icon.svelte';
 	import Zeko from './Zeko.svelte';
 	import Motif from './Motif.svelte';
+	import Modal from './Modal.svelte';
+	import DifficultyBoard from './DifficultyBoard.svelte';
+	import { PRESETS, presetId, difficulty } from '$lib/stores/difficulty.js';
 
 	let {
 		title = 'Drill',
@@ -13,9 +16,17 @@
 		best = 0,
 		goal = 20,
 		feedback = null,
+		remainingMs = 0,
+		budgetMs = 0,
 		children,
 		aside = null
 	} = $props();
+
+	let dialsOpen = $state(false);
+
+	const clockPct = $derived(budgetMs ? Math.max(0, (remainingMs / budgetMs) * 100) : 0);
+	const clockLow = $derived(clockPct < 30);
+	const presetJp = $derived(PRESETS.find((p) => p.id === $presetId)?.jp ?? '自');
 
 	const accuracy = $derived(asked ? Math.round((correct / asked) * 100) : 0);
 	const pct = $derived(Math.min(100, Math.round((asked / Math.max(1, goal)) * 100)));
@@ -56,10 +67,23 @@
 			<span class="stat" title="Best streak"><Icon name="star" size={15} />{best}</span>
 		</div>
 
+		<button class="dials" onclick={() => (dialsOpen = true)} title="Difficulty">
+			<span class="jp">{presetJp}</span>
+			{#if $difficulty.clock === 'off'}<span class="jp inf">∞</span>{/if}
+			<Icon name="gear" size={14} />
+		</button>
+
 		<div class="meter" style="flex:1 1 120px">
 			<i style="width:{pct}%"></i>
 		</div>
 	</header>
+
+	{#if budgetMs}
+		<div class="clock" class:low={clockLow}>
+			<div class="meter"><i style="width:{clockPct}%"></i></div>
+			<span>{(remainingMs / 1000).toFixed(1)}s</span>
+		</div>
+	{/if}
 
 	{#if hint}
 		<p class="hint muted">{hint}</p>
@@ -78,6 +102,10 @@
 		</div>
 	</div>
 </div>
+
+<Modal open={dialsOpen} label="Difficulty" onClose={() => (dialsOpen = false)}>
+	<DifficultyBoard collapsible={false} />
+</Modal>
 
 <style>
 	.drill {
@@ -232,5 +260,53 @@
 			flex-direction: row;
 			justify-content: center;
 		}
+	}
+
+	.dials {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 5px 9px;
+		background: var(--bg-raised);
+		border: 2px solid var(--surface-line);
+		border-radius: var(--r-sm);
+		color: var(--ink-strong);
+		cursor: pointer;
+		font-size: 0.85rem;
+	}
+
+	.dials:hover {
+		border-color: var(--aqua-deep);
+	}
+
+	.dials .inf {
+		color: var(--wedge);
+	}
+
+	.clock {
+		display: flex;
+		align-items: center;
+		gap: var(--s-2);
+		padding: 0 var(--s-3) var(--s-2);
+	}
+
+	.clock .meter {
+		flex: 1;
+	}
+
+	.clock span {
+		min-width: 3.2rem;
+		text-align: right;
+		font-size: 0.85rem;
+		font-weight: 700;
+		color: var(--ink-soft);
+	}
+
+	.clock.low :global(i) {
+		background: var(--hanko);
+	}
+
+	.clock.low span {
+		color: var(--hanko);
 	}
 </style>

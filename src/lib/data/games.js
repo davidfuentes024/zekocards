@@ -1,14 +1,13 @@
 /* The training hall roster.
    Every drill answers with Japanese symbols or English meaning — never with
-   a romaji transcription — and every answer pad shows the complete script,
-   reshuffled, so nothing can be solved by position or elimination. */
+   a romaji transcription. What the answer pad holds is a difficulty dial. */
 export const GAMES = [
 	{
 		id: 'blind',
 		title: 'Blind Sound',
 		jp: '音のみ',
 		icon: 'ear',
-		blurb: 'You only hear it. Find the symbol on a pad holding every kana in the script.',
+		blurb: 'Hear a sound, pick the symbol.',
 		needs: 'sounds'
 	},
 	{
@@ -16,7 +15,7 @@ export const GAMES = [
 		title: 'Script Bridge',
 		jp: '対応',
 		icon: 'shuffle',
-		blurb: 'See a symbol in one script, produce the same sound in the other. No romaji anywhere.',
+		blurb: 'See one script, answer in the other.',
 		needs: 'sounds'
 	},
 	{
@@ -24,7 +23,7 @@ export const GAMES = [
 		title: 'Word Dictation',
 		jp: '書き取り',
 		icon: 'keyboard',
-		blurb: 'One spoken word. Spell it out of the full grid, symbol by symbol.',
+		blurb: 'Hear a word, spell it in kana.',
 		needs: 'words'
 	},
 	{
@@ -32,7 +31,7 @@ export const GAMES = [
 		title: 'Word Forge',
 		jp: '組み立て',
 		icon: 'brush',
-		blurb: 'Only the meaning is given. Write the word in kana from the complete pad.',
+		blurb: 'See the meaning, spell the word.',
 		needs: 'words'
 	},
 	{
@@ -40,7 +39,7 @@ export const GAMES = [
 		title: 'Reading → Meaning',
 		jp: '意味',
 		icon: 'scroll',
-		blurb: 'Read the Japanese and say what it means. Comprehension, not transcription.',
+		blurb: 'Read a word, type its meaning.',
 		needs: 'words'
 	},
 	{
@@ -48,7 +47,7 @@ export const GAMES = [
 		title: 'Look-alikes',
 		jp: '紛らわしい字',
 		icon: 'target',
-		blurb: 'シ ツ ソ ン and the rest — identify which one you got, then produce it.',
+		blurb: 'Tell look-alike symbols apart.',
 		needs: 'sounds'
 	},
 	{
@@ -56,7 +55,7 @@ export const GAMES = [
 		title: 'Anchor Recall',
 		jp: '連想',
 		icon: 'pencil',
-		blurb: 'Your own written association, with the symbol removed.',
+		blurb: 'Your own note, find the symbol.',
 		needs: 'anchors'
 	},
 	{
@@ -64,7 +63,7 @@ export const GAMES = [
 		title: 'Sixty Seconds',
 		jp: '速読み',
 		icon: 'flame',
-		blurb: 'Audio in, symbol out, one minute. No time to reason it out.',
+		blurb: 'Audio in, symbol out, one minute.',
 		needs: 'sounds'
 	},
 	{
@@ -72,7 +71,7 @@ export const GAMES = [
 		title: 'Kanji Grind',
 		jp: '漢字',
 		icon: 'seal',
-		blurb: 'Meanings in English, readings spelled out in kana on the full grid.',
+		blurb: 'Kanji meanings and readings.',
 		needs: 'kanji'
 	}
 ];

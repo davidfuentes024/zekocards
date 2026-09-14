@@ -1,6 +1,7 @@
 # Proposal — fixing the audio
 
-> Status: **proposal only, nothing implemented.**
+> Status: **Option A implemented and shipped.** Clips rendered once;
+> sprites packed for web, per-clip AAC packed for the Flutter app. Everything below the line "Implementation" is live code.
 > Written because the current playback sounds clipped, thin and inconsistent.
 
 ---
@@ -130,3 +131,97 @@ If shipping assets has to wait, these changes make `speechSynthesis` less bad:
 
 Keep `speechSynthesis` wired up as the last-resort fallback so the app still
 half-works on a browser with no network and no cached sprite.
+
+
+---
+
+# Implementation (Option A)
+
+Provider: **Azure Speech**, `ja-JP-NanamiNeural`. Chosen over Google because
+it is the only one with usable SSML `<phoneme>` control for Japanese, which
+is what the kana overrides need. Assets ship in `static/audio/`.
+
+## Real numbers (the estimates above predate dictionary-core/-extra)
+
+| Sprite | Clips |
+|---|---|
+| `kana` | 128 |
+| `words-n5` | 862 |
+| `words-n4` | 504 |
+| `words-n3` | 1 338 |
+| `words-n2` | 524 |
+| `words-n1` | 816 |
+| `kanji` | 1 016 |
+| **Total** | **5 188** |
+
+~11 400 characters of content. At Azure's $16/1M that is single-digit dollars,
+once. Expect ~16 MB of Opus at 32 kbps.
+
+## Pipeline
+
+```
+scripts/audio/
+  entries.js    data → the flat clip list (dedup, sprite assignment, aliases)
+  overrides.js  the handful of kana whose default render is WRONG
+  build.js      Azure render → trim → loudnorm −16 LUFS → 80 ms pad
+  verify.js     ASR gate: transcribe each clip, diff against expected reading
+  pack.js       concat into sprites + manifest.json of offsets
+```
+
+```sh
+brew install ffmpeg whisper-cpp                 # once
+export AZURE_SPEECH_KEY=... AZURE_SPEECH_REGION=westeurope
+npm run audio:build      # renders; content-addressed, so re-runs are free
+npm run audio:verify     # ASR gate → scripts/audio/report.json
+npm run audio:pack       # → static/audio/*.webm + manifest.json
+```
+
+`build.js` caches by a hash of the SSML, so changing one override re-renders
+one clip, not five thousand. Bump `RECIPE` in `build.js` to invalidate all.
+
+## Three decisions worth knowing
+
+**Kana are rendered from the KATAKANA glyph.** A lone hiragana `は` / `へ` /
+`を` is read by every neural engine as the particle — "wa", "e", "o". The
+katakana form has no particle reading. Both scripts share the clip anyway,
+because they are the same sound.
+
+**Words are rendered from the KANJI form when the row has one.** The engine's
+lexicon gives 橋 a correct pitch accent it can only guess at for はし. The cost
+is homographs: `WORDS` is curated-first, so the first row wins and 雨/飴 share
+one clip. `verify.js` is what catches when that goes wrong.
+
+**A bare kanji has no pronunciation**, so `kanji:<glyph>` commits to one
+reading — kun first, on as fallback. This is a real pedagogical choice, not a
+technical default; the drill used to send the glyph straight to the TTS and
+take whatever came back.
+
+## Runtime
+
+`src/lib/utils/audio.js` exports `play()`, aliased as `say` at every call
+site, so no component logic changed. It resolves text → clip through the
+manifest's alias table, seeks into the decoded sprite with Web Audio
+(~5 ms, no `cancel()` race), and caches the compressed bytes in Cache
+Storage so it survives reloads and works offline.
+
+`speechSynthesis` stays wired as the last resort: with no manifest, a cold
+sprite, or an unknown string, `play()` returns `'tts'` and the app still
+makes noise. The kana sprite is preloaded in `+layout.svelte`; word and kanji
+sprites load on first miss.
+
+## Packing without re-rendering
+
+Rendering is the only step that calls Azure. Everything after it reads
+`scripts/audio/.cache/` and runs locally with ffmpeg:
+
+```sh
+npm run audio:pack                     # web: static/audio/*.webm + manifest.json
+node scripts/audio/pack-mobile.js      # app: ../japones-mobile/assets/audio/*.m4a + index.json
+```
+
+The mobile app gets one AAC file per clip instead of a sprite: iOS cannot
+decode WebM/Opus, and seeking into an AAC sprite drifts by the encoder
+priming delay (~90 ms at 24 kHz), longer than the clip padding.
+
+Known gap: `ン` rendered empty (Azure rejected the `ɴ` phoneme), so it is
+skipped by both packers and falls back to the device/browser voice.

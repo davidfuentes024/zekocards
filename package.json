@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "audio:build": "node scripts/audio/build.js",
+    "audio:verify": "node scripts/audio/verify.js",
+    "audio:pack": "node scripts/audio/pack.js",
+    "audio": "npm run audio:build && npm run audio:pack"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.6",

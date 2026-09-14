@@ -6,14 +6,14 @@
 	import KanaKeypad from '$lib/components/KanaKeypad.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import { KANJI, KANJI_LEVELS } from '$lib/data/kanji.js';
-	import { scriptSounds, glyphOf } from '$lib/data/kana.js';
+	import { scriptSounds, glyphOf, tokenize } from '$lib/data/kana.js';
 	import { createDrill } from '$lib/utils/drill.svelte.js';
 	import { nextPrompt } from '$lib/utils/random.js';
 	import { checkMeaning } from '$lib/utils/answer.js';
-	import { say } from '$lib/utils/speech.js';
+	import { play as say } from '$lib/utils/audio.js';
 	import { persisted } from '$lib/stores/persisted.js';
 
-	const drill = createDrill({ goal: 20 });
+	const drill = createDrill({ goal: 20, seconds: 22 });
 	const kanjiStats = persisted('kanji-stats', {});
 
 	let level = $state('N5');
@@ -37,12 +37,29 @@
 	const target = $derived(current ? (current.kun[0] ?? current.on[0] ?? '') : '');
 	const readingScript = $derived(current && current.kun.length ? 'hiragana' : 'katakana');
 	const pad = $derived(scriptSounds(readingScript));
+	/* a reading is not bound to the selection, so its symbols are forced onto the pad */
+	const needed = $derived(tokenize(target).units.filter((u) => u.sound).map((u) => u.sound.id));
 
 	function weight(k) {
 		const s = $kanjiStats[k.id];
 		if (!s) return 8;
 		return 1 + (s.bad ?? 0) * 3 - Math.min(4, s.ok ?? 0) * 0.5;
 	}
+
+	drill.onTimeout = () => {
+		if (!current || revealed) return;
+		if (mode === 'meaning') {
+			score(false);
+			drill.answer([], false);
+			status = 'bad';
+			revealed = true;
+			setTimeout(next, 2400);
+		} else if (!missed) {
+			missed = true;
+			nudge += 1;
+			drill.setFeedback('bad');
+		}
+	};
 
 	function next() {
 		if (!pool.length) return;
@@ -115,13 +132,15 @@
 <DrillFrame
 	title="Kanji Grind"
 	jp="漢字"
-	hint="Meanings in English, readings in kana. Readings are spelled out on the full grid, never romanised."
+	hint="Meaning in English, reading in kana."
 	asked={drill.asked}
 	correct={drill.correct}
 	streak={drill.streak}
 	best={drill.best}
 	goal={drill.goal}
 	feedback={drill.feedback}
+	remainingMs={drill.remainingMs}
+	budgetMs={drill.budgetMs}
 >
 	<div class="modes">
 		{#each KANJI_LEVELS as l}
@@ -187,6 +206,7 @@
 				shuffleKey={round}
 				disabled={revealed}
 				size="sm"
+				required={needed}
 				onPick={(s) => push(glyphOf(s, readingScript))}
 			/>
 		{/if}
