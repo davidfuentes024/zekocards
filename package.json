@@ -1,6 +1,12 @@
 {
   "name": "zekocards",
   "version": "1.0.0",
+  "description": "Learn hiragana, katakana and kanji by repetition. A static SvelteKit app with no account and no tracking.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davidfuentes024/zekocards.git"
+  },
   "private": true,
   "type": "module",
   "scripts": {
@@ -21,7 +27,6 @@
   },
   "dependencies": {
     "@fontsource/zen-kaku-gothic-new": "^5.1.0",
-    "@fontsource/zen-maru-gothic": "^5.1.0",
-    "@vercel/analytics": "^2.0.1"
+    "@fontsource/zen-maru-gothic": "^5.1.0"
   }
 }
