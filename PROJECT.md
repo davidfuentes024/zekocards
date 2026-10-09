@@ -6,9 +6,10 @@ not be touched** when adding features in future sessions.
 
 ---
 
-> A Flutter port for Android and iOS lives in `../japones-mobile`. It shares
-> this repo's identity and data — its asset tables are exported straight out of
-> `src/lib/data/` — and adds five harder drills on top of the nine here.
+> A Flutter port for Android and iOS exists as a separate project that is not
+> published yet. It shares this repo's identity and data — its asset tables are
+> exported straight out of `src/lib/data/` — and adds five harder drills on top
+> of the nine here.
 
 ## 1. The core, in one paragraph
 
@@ -244,6 +245,6 @@ Two problems are documented but deliberately **not** implemented yet:
   total. Every new word automatically becomes available to the drills that can
   reach it. `kanji.js` is layered the same way and holds 1016 characters, the
   1000 most frequent plus the hand-written extras.
-- The generators live in `../japones-mobile/tool/`.
+- The generators for the mobile port live in that separate project.
 - Kanji progress is tracked separately (`kanji-stats`) and is not part of the
   kana mastery map.
