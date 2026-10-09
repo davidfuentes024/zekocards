@@ -66,9 +66,9 @@
 		display: flex;
 		flex-direction: column;
 		background: var(--bg-raised);
-		border: 3px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 		border-radius: var(--r-md);
-		box-shadow: 0 5px 0 var(--surface-line-strong);
+		box-shadow: var(--sh-1);
 		overflow: hidden;
 		transition:
 			transform 130ms var(--ease-spring),
@@ -79,17 +79,17 @@
 
 	.card:hover {
 		transform: translateY(-4px) rotate(-0.8deg);
-		box-shadow: 0 9px 0 var(--surface-line-strong), var(--sh-2);
+		box-shadow: var(--sh-2);
 		border-color: var(--aqua-deep);
 	}
 
 	.card.is-on {
 		background: var(--cello);
 		border-color: var(--cello);
-		box-shadow: 0 5px 0 var(--cello-ink);
+		box-shadow: var(--sh-1);
 	}
 	.card.is-on:hover {
-		box-shadow: 0 9px 0 var(--cello-ink), var(--sh-2);
+		box-shadow: var(--sh-2);
 	}
 
 	.face {
@@ -134,7 +134,7 @@
 	}
 
 	.is-on .glyph {
-		color: #fff;
+		color: var(--on-accent);
 	}
 	.is-on .romaji {
 		color: var(--aqua);
@@ -180,7 +180,7 @@
 		align-items: center;
 		gap: var(--s-2);
 		padding: var(--s-2);
-		border-top: 3px solid var(--surface-line);
+		border-top: 1px solid var(--surface-line);
 		background: var(--bg-tint);
 	}
 
@@ -216,7 +216,7 @@
 		width: 30px;
 		height: 30px;
 		flex: none;
-		border: 2px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 		border-radius: var(--r-sm);
 		background: var(--bg-raised);
 		color: var(--wedge-deep);

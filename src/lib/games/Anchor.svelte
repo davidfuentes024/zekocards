@@ -130,7 +130,7 @@
 		max-width: min(48ch, 100%);
 		padding: var(--s-4) var(--s-5);
 		background: var(--bg-tint);
-		border: 3px solid var(--surface-line);
+		border: 1.5px solid var(--surface-line);
 		border-left: 8px solid var(--aqua);
 		border-radius: var(--r-md);
 		color: var(--ink);

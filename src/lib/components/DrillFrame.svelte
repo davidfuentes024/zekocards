@@ -64,7 +64,6 @@
 			<span class="stat" class:hot={streak >= 5} title="Current streak">
 				<Icon name="flame" size={15} />{streak}
 			</span>
-			<span class="stat" title="Best streak"><Icon name="star" size={15} />{best}</span>
 		</div>
 
 		<button class="dials" onclick={() => (dialsOpen = true)} title="Difficulty">
@@ -85,7 +84,7 @@
 		</div>
 	{/if}
 
-	{#if hint}
+	{#if hint && asked === 0}
 		<p class="hint muted">{hint}</p>
 	{/if}
 
@@ -121,9 +120,11 @@
 		flex-wrap: wrap;
 		padding: var(--s-3) var(--s-4);
 		border-radius: var(--r-tile);
-		border: 2px solid var(--surface-line);
-		background: var(--bg-raised);
-		box-shadow: var(--edge);
+		border: 0.5px solid var(--glass-line);
+		background: var(--glass-fill);
+		-webkit-backdrop-filter: saturate(180%) blur(22px);
+		backdrop-filter: saturate(180%) blur(22px);
+		box-shadow: var(--sh-1);
 		position: sticky;
 		top: calc(var(--header-h) + 8px);
 		z-index: 5;
@@ -134,15 +135,18 @@
 		place-items: center;
 		width: 42px;
 		height: 42px;
-		border: 2px solid var(--surface-line);
-		border-radius: var(--r-md);
-		background: var(--bg-raised);
+		border-radius: var(--r-full);
+		background: var(--bg-sunken);
 		color: var(--wedge-deep);
-		box-shadow: 0 3px 0 var(--surface-line);
-		transition: background var(--t-fast) var(--ease-out);
+		transition:
+			background var(--t-base) var(--ease-ios),
+			transform var(--t-base) var(--ease-ios);
 	}
 	.quit:hover {
-		background: var(--aqua);
+		background: var(--aqua-soft);
+	}
+	.quit:active {
+		transform: scale(0.92);
 	}
 
 	.who {
@@ -172,7 +176,8 @@
 		background: var(--bg-tint);
 		font-family: var(--font-display);
 		font-size: var(--fs-xs);
-		font-weight: 800;
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
 		color: var(--ink-muted);
 	}
 	.stat.hot {
@@ -193,21 +198,23 @@
 		align-items: end;
 		padding: var(--s-6) var(--s-5) var(--s-5);
 		border-radius: var(--r-xl);
-		background: var(--bg-raised);
-		border: 3px solid var(--surface-line);
-		box-shadow: 0 8px 0 var(--surface-line-strong);
+		background: var(--glass-fill);
+		-webkit-backdrop-filter: saturate(180%) blur(22px);
+		backdrop-filter: saturate(180%) blur(22px);
+		border: 0.5px solid var(--glass-line);
+		box-shadow: var(--sh-2);
 		transition:
-			box-shadow var(--t-base) var(--ease-out),
-			border-color var(--t-base) var(--ease-out);
+			box-shadow var(--t-slow) var(--ease-ios),
+			border-color var(--t-base) var(--ease-ios);
 	}
 
+	/* feedback is a soft ring that settles, not a heavy coloured slab */
 	.stage.flash-ok {
-		border-color: var(--ok);
-		box-shadow: 0 8px 0 var(--ok);
+		box-shadow: var(--sh-2), 0 0 0 3px color-mix(in srgb, var(--ok) 55%, transparent);
 	}
 	.stage.flash-bad {
-		border-color: var(--bad);
-		box-shadow: 0 8px 0 var(--bad);
+		box-shadow: var(--sh-2), 0 0 0 3px color-mix(in srgb, var(--bad) 60%, transparent);
+		animation: zk-shake 420ms var(--ease-in-out);
 	}
 
 	.content {
@@ -234,12 +241,11 @@
 		padding: 0.4em 0.9em;
 		border-radius: var(--r-md);
 		background: var(--cello);
-		color: #fff;
+		color: var(--on-accent);
 		font-family: var(--font-display);
-		font-weight: 800;
+		font-weight: 600;
 		font-size: var(--fs-sm);
-		box-shadow: 0 4px 0 var(--cello-ink);
-		animation: zk-pop 260ms var(--ease-spring);
+		animation: zk-pop var(--t-base) var(--ease-ios);
 	}
 
 	.aside {
@@ -267,8 +273,8 @@
 		align-items: center;
 		gap: 6px;
 		padding: 5px 9px;
-		background: var(--bg-raised);
-		border: 2px solid var(--surface-line);
+		background: var(--bg-sunken);
+		border: 0;
 		border-radius: var(--r-sm);
 		color: var(--ink-strong);
 		cursor: pointer;

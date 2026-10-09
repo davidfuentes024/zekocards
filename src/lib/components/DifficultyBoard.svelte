@@ -172,7 +172,7 @@
 		display: grid;
 		gap: 8px;
 		padding-top: var(--s-3);
-		border-top: 2px solid var(--surface-line);
+		border-top: 1px solid var(--surface-line);
 	}
 
 	.note {

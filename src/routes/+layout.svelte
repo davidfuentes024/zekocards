@@ -93,23 +93,11 @@
 
 <footer class="site-foot">
 	<div class="wrap foot">
-		<div class="stack">
-			<span class="eyebrow">zekocards · ゼコカード</span>
-			<p class="muted small">
-				Built for the long, boring middle of learning kana — the part where repetition is the
-				only thing that works.
-			</p>
-			<a class="letter-link" href="/#letter">
-				<Icon name="seal" size={16} /> read the letter
-			</a>
-		</div>
-		<div class="links">
-			{#each NAV.slice(1) as item}
-				<a href={item.href}>{item.label}</a>
-			{/each}
-		</div>
+		<span class="eyebrow">zekocards · ゼコカード</span>
+		<a class="letter-link" href="/#letter">
+			<Icon name="seal" size={16} /> Why this exists
+		</a>
 	</div>
-	<div class="ground"></div>
 </footer>
 
 <style>
@@ -131,9 +119,10 @@
 		position: sticky;
 		top: 0;
 		z-index: 20;
-		background: color-mix(in srgb, var(--mint) 88%, transparent);
-		backdrop-filter: blur(10px);
-		border-bottom: 1.5px solid var(--surface-line);
+		background: var(--glass);
+		-webkit-backdrop-filter: saturate(180%) blur(24px);
+		backdrop-filter: saturate(180%) blur(24px);
+		border-bottom: 0.5px solid var(--surface-line-strong);
 	}
 
 	.bar {
@@ -155,7 +144,7 @@
 		line-height: 1.05;
 	}
 	.name strong {
-		font-family: var(--font-display);
+		font-family: var(--font-brand);
 		font-size: var(--fs-lg);
 		letter-spacing: -0.02em;
 	}
@@ -177,20 +166,23 @@
 		border-radius: var(--r-tab);
 		font-family: var(--font-display);
 		font-size: var(--fs-xs);
-		font-weight: 700;
+		font-weight: 600;
 		color: var(--ink-muted);
 		transition:
-			background var(--t-fast) var(--ease-out),
-			color var(--t-fast) var(--ease-out);
+			background var(--t-base) var(--ease-ios),
+			color var(--t-base) var(--ease-ios),
+			transform var(--t-base) var(--ease-ios);
 	}
 	.nav a:hover {
 		background: var(--aqua-soft);
 		color: var(--cello);
 	}
+	.nav a:active {
+		transform: scale(0.96);
+	}
 	.nav a.active {
 		background: var(--cello);
-		color: #fff;
-		box-shadow: 0 3px 0 var(--cello-ink);
+		color: var(--on-accent);
 	}
 
 	.right {
@@ -205,11 +197,10 @@
 		padding: 0.3em 0.7em;
 		border-radius: var(--r-tab);
 		background: var(--bg-raised);
-		border: 2px solid var(--surface-line);
-		box-shadow: 0 3px 0 var(--surface-line);
+		border: 1px solid var(--surface-line);
 		font-family: var(--font-display);
 		font-size: var(--fs-2xs);
-		font-weight: 800;
+		font-weight: 600;
 		color: var(--wedge-deep);
 	}
 
@@ -235,7 +226,7 @@
 		position: relative;
 		z-index: 1;
 		margin-top: var(--s-9);
-		border-top: 1.5px solid var(--surface-line);
+		border-top: 0.5px solid var(--surface-line-strong);
 		background: var(--bg-sunken);
 	}
 	.foot {
@@ -245,18 +236,6 @@
 		padding-block: var(--s-6);
 		flex-wrap: wrap;
 	}
-	.small {
-		font-size: var(--fs-sm);
-		max-width: min(46ch, 100%);
-	}
-	.links {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--s-4);
-		font-size: var(--fs-sm);
-		font-weight: 700;
-	}
-
 	.letter-link {
 		display: inline-flex;
 		align-items: center;
@@ -264,11 +243,6 @@
 		font-size: var(--fs-xs);
 		font-weight: 700;
 		color: var(--wedge);
-	}
-	.ground {
-		height: 16px;
-		background: repeating-linear-gradient(90deg, var(--aqua) 0 20px, var(--aqua-deep) 20px 40px);
-		opacity: 0.45;
 	}
 
 	@media (max-width: 900px) {

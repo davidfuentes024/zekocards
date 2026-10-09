@@ -62,9 +62,9 @@
 		gap: 2px var(--s-2);
 		padding: var(--s-3);
 		background: var(--bg-raised);
-		border: 3px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 		border-radius: var(--r-md);
-		box-shadow: 0 5px 0 var(--surface-line-strong);
+		box-shadow: var(--sh-1);
 		cursor: pointer;
 		text-align: left;
 		transition:
@@ -76,16 +76,16 @@
 	.col-head:hover {
 		transform: translateY(-3px);
 		border-color: var(--aqua-deep);
-		box-shadow: 0 8px 0 var(--surface-line-strong);
+		box-shadow: var(--sh-1);
 	}
 	.col-head:active {
-		transform: translateY(2px);
-		box-shadow: 0 2px 0 var(--surface-line-strong);
+		transform: scale(0.97);
+		box-shadow: var(--sh-1);
 	}
 	.col-head.is-on {
 		background: var(--aqua);
 		border-color: var(--aqua-deep);
-		box-shadow: 0 5px 0 var(--aqua-deep);
+		box-shadow: var(--sh-1);
 	}
 
 	.label {
@@ -117,7 +117,7 @@
 	}
 	.is-on .mark {
 		background: var(--cello);
-		color: #fff;
+		color: var(--on-accent);
 	}
 	.count {
 		grid-row: 2;

@@ -70,16 +70,13 @@
 		<!-- ===== HUD ===== -->
 		<div class="hud">
 			<div class="hud-title">
-				<span class="eyebrow">The deck · 五十音図</span>
-				<h1>Choose what you<br />are learning today.</h1>
+				<span class="eyebrow">五十音図</span>
+				<h1>Your deck</h1>
 			</div>
 
 			<div class="hud-counts">
 				<div class="count count--a">
 					<strong>{$selectionSummary.sounds}</strong><span>sounds</span>
-				</div>
-				<div class="count count--b">
-					<strong>{$selectionSummary.words}</strong><span>words unlocked</span>
 				</div>
 				<a class="btn btn--lg train" href="/practice">
 					<Icon name="target" size={20} /> Train now
@@ -234,15 +231,15 @@
 		justify-items: center;
 		padding: var(--s-3) var(--s-4);
 		border-radius: var(--r-md);
-		border: 2px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 		background: var(--bg-raised);
-		box-shadow: 0 5px 0 var(--surface-line);
+		box-shadow: var(--sh-1);
 		min-width: 108px;
 	}
 	.count--a {
 		background: var(--aqua-soft);
 		border-color: var(--aqua-deep);
-		box-shadow: 0 5px 0 var(--aqua-deep);
+		box-shadow: var(--sh-1);
 	}
 	.count strong {
 		font-family: var(--font-display);
@@ -270,9 +267,9 @@
 		width: 150px;
 		padding: var(--s-3) var(--s-3) var(--s-4);
 		border-radius: var(--r-tile);
-		border: 3px solid var(--cello);
+		border: 1px solid var(--cello);
 		background: var(--bg-raised);
-		box-shadow: 0 6px 0 var(--cello);
+		box-shadow: var(--sh-1);
 		cursor: pointer;
 		transition:
 			transform 130ms var(--ease-spring),
@@ -280,22 +277,22 @@
 	}
 	.preset:hover {
 		transform: translateY(-4px) rotate(-1deg);
-		box-shadow: 0 10px 0 var(--cello);
+		box-shadow: var(--sh-1);
 	}
 	.preset:active {
-		transform: translateY(3px);
-		box-shadow: 0 2px 0 var(--cello);
+		transform: scale(0.97);
+		box-shadow: var(--sh-1);
 	}
 	.preset--ghost {
 		border-color: var(--surface-line-strong);
-		box-shadow: 0 6px 0 var(--surface-line-strong);
+		box-shadow: var(--sh-1);
 		color: var(--wedge-deep);
 		align-content: center;
 		width: 124px;
 	}
 	.preset--ghost:hover,
 	.preset--ghost:active {
-		box-shadow: 0 10px 0 var(--surface-line-strong);
+		box-shadow: var(--sh-1);
 	}
 	.p-label {
 		font-family: var(--font-display);
@@ -318,7 +315,7 @@
 		padding: var(--s-3);
 		margin-bottom: var(--s-5);
 		border-radius: var(--r-tile);
-		border: 2px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 		background: var(--bg-raised);
 		box-shadow: var(--edge);
 		position: sticky;
@@ -354,8 +351,8 @@
 	}
 	.seg-btn.is-on {
 		background: var(--cello);
-		color: #fff;
-		box-shadow: 0 3px 0 var(--cello-ink);
+		color: var(--on-accent);
+		box-shadow: var(--sh-1);
 	}
 
 	.tabs {

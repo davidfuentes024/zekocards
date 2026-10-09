@@ -293,7 +293,7 @@
 		border-style: solid;
 		border-color: var(--wedge);
 		background: var(--bg-raised);
-		box-shadow: 0 4px 0 var(--wedge-soft);
+		box-shadow: 0 var(--lift-play) 0 var(--wedge-soft);
 	}
 	.solved .slot {
 		border-color: var(--ok);

@@ -63,6 +63,19 @@
 </div>
 
 <style>
+	/* Zeko never changes colour with the theme. The brand tokens are re-pinned to
+	   their light values here so dark mode (which inverts the ramp) can't recolour him. */
+	.zeko {
+		--mint: #f2faef;
+		--mint-deep: #e4f1e0;
+		--aqua: #a7dadc;
+		--aqua-deep: #7fc3c6;
+		--wedge: #447a9c;
+		--wedge-soft: #6d9cb8;
+		--cello: #1d3658;
+		--hanko: #c4573f;
+		--hanko-soft: #e0a294;
+	}
 	.zeko {
 		position: relative;
 		flex: none;

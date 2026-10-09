@@ -1,9 +1,15 @@
 # ZEKOCARDS — Visual & Product Identity
 
-> **This file is immutable.** Everything written here is a fixed decision.
+> **This file is the law.** Everything written here is a fixed decision.
 > Future sessions may add features, pages and drills, but must not change,
 > "modernise" or override anything in this document. If a new feature seems
 > to require breaking a rule here, the feature is wrong, not the rule.
+>
+> **Revision 2 — Apple-guideline redesign.** The visual language moved from
+> chunky "game pieces" to flat, glass and spring-animated surfaces that follow
+> Apple's Human Interface Guidelines. Product promises (§1) and the palette are
+> unchanged. §2, §3, §4, §4b, §4c, §6 and the new §9 were rewritten; the old
+> rules they replace no longer apply.
 
 ---
 
@@ -91,30 +97,32 @@ the seal motif — never as decoration, never as a brand colour.
 
 Rules:
 - No colour may be hardcoded in a component. Everything comes from a token.
-- No generic gradients. The only gradients allowed are the washi-paper grain in
-  `base.css`, the seigaiha wave pattern, and mask fades.
+- No decorative gradients. Allowed: the faint fixed ambient light in `base.css`
+  (what the glass blurs), the seigaiha wave pattern, and mask fades.
 - No glow, neon, drop-shadow colour or "shiny" text. Shadows are soft and blue-grey.
+- **Dark mode** is part of the identity, not an add-on. It follows the system by
+  default; the manual override (Automatic / Light / Dark) lives only in
+  Progress → Settings and is never shown in the chrome. Dark mode *inverts the
+  brand ramp* in `tokens.css` (Cello becomes the ground, Menta the ink); it
+  never introduces a new hue.
+- **Zeko never changes colour with the theme.** `Zeko.svelte` re-pins the brand
+  tokens to their light values on its own root.
 
 ---
 
-## 3. Typography — fixed
+## 3. Typography
 
-- **Display / headings / mascot:** `Zen Maru Gothic` (rounded, friendly, has kana).
-- **UI / body:** `Zen Kaku Gothic New`.
-- **Japanese text:** `Zen Maru Gothic` via the `.jp` class, always.
-
-Scale rules:
-- This is a learning toy, not a document. Base body text is `1.125rem`,
-  headings are large and tight, and the display face carries weight 700–800.
-  If a screen starts to read like a Word document, the type is too small.
-- Headings may break lines by hand for rhythm; one clause per line.
+- **Interface, headings, body:** the platform font (`-apple-system` / SF Pro),
+  so text follows each device. `Zen Kaku Gothic New` is only the fallback.
+- **Wordmark and all Japanese:** `Zen Maru Gothic` (`--font-brand`, `.jp`), always.
+- Headings are semibold/bold, tight tracking, `text-wrap: balance`. Body is 400–500.
 - A key phrase in a heading may be wrapped in `<em>` — it renders in
-  `--wedge` with an aqua highlight bar behind it. That is the only
-  decorative type treatment allowed.
+  `--wedge` with an aqua highlight bar. That is the only decorative type treatment.
 
 Rules:
 - Headings are tight (`--lh-tight`), body is generous (`--lh-body`).
-- Eyebrows/labels are uppercase, letter-spaced, small, in `--wedge`.
+- Eyebrows are small and quiet. On main screens an eyebrow is just the kanji of
+  the page (道場, 辞書…), never a second title.
 - Never centre long paragraphs. Never use all-caps for sentences.
 - Kana and kanji are always set in the `.jp` class so they never fall back to
   a system serif.
@@ -138,48 +146,44 @@ Rules:
 - Zeko never nags and never guilt-trips.
 - Zeko reacts, he does not reward. No confetti, no coins, no badges.
 - Zeko is never redrawn in a different medium (no illustration, no PNG).
-- **Zeko is present and interactive on every main screen** via
-  `ZekoSpeak.svelte`: a speech bubble plus a poke target that cycles his mood
-  and his line. Lines are page-specific, short, and dry. In drills he reacts
-  to the answer (`そう！` / `ちがう`) from `DrillFrame`.
+- **Zeko is present on every main screen** via `ZekoSpeak.svelte`, but he is
+  **quiet until poked**: no permanent speech bubble. A poke shows one short,
+  dry, page-specific line for a few seconds and cycles his mood. Only an empty
+  state may pass `always`. In drills he reacts to the answer (`そう！` /
+  `ちがう`) from `DrillFrame`.
 
 ---
 
-## 4b. Surfaces, buttons and menus — the game-piece language
+## 4b. Surfaces, buttons and menus — flat, glass, springy
 
-Everything interactive is a solid object with a visible bottom edge; it
-depresses when pressed. This is the whole reason the app does not read as a
-document.
+Surfaces are flat and translucent; hierarchy comes from space, type and soft
+shadow, not from borders.
 
-- `.btn` — chunky, coloured, `box-shadow: 0 var(--lift) 0 <edge>`, and on
-  `:active` it translates down by `--lift` and loses the shadow. Variants:
-  solid (Wedgewood), `--soft` (aqua), `--ink` (Cello), `--ghost` (white),
-  sizes `--sm --lg --xl`.
-- `.tab` — square-ish (`--r-tab`) filter control with a 3px bottom edge.
-  Filters are **never** pill-shaped and never fully rounded.
-- `.tile` — the menu button of the app: thick border, `--r-tile` radius,
-  bottom edge, lifts and rotates slightly on hover.
-- `.seg` — segmented switch used for script and level选択.
-- Panels and cards use 2–3px borders and a solid bottom edge, not soft
-  drop-shadows alone.
+- **Glass** (`.glass`, `.panel`, `.tile`, `.bubble`, header, modals, drill bar):
+  `--glass-fill`, `saturate(180%) blur(22px)`, a 0.5px `--glass-line` hairline.
+- `.btn` — flat, continuous corners, no bottom edge. On `:active` it scales to
+  0.97 with a short ease. Variants: solid (Wedgewood), `--soft`, `--ink`,
+  `--ghost`, sizes `--sm --lg --xl`.
+- `.tab` — 1px border, `--r-tab`; filters are never pill-shaped.
+- `.tile` — the menu button: `--r-tile`, `--sh-1`, lifts 2px on hover.
+- `.seg` / `.seg-set` — segmented switch; the selected segment is a raised chip.
+- Modals are centred sheets: they rise 28px and settle with `--ease-ios`.
+- **Drills only** keep a tactile edge: keys, answer pieces and the speaker use
+  `box-shadow: 0 var(--lift-play) 0 <edge>` (3px) and press down. Nothing
+  outside a drill has a solid bottom edge.
+- Borders are 1px (1.5px on drill pieces). Never 2–3px.
 
-**Layout law:** every main screen is a *menu*, not a stacked document.
-Horizontal rails (`.rail`), tab-switched groups and staggered grids are the
-default; long vertical stacks of full-width panels are not. Blocks are
-deliberately knocked off the grid line (`.tilt-l`, `.nudge-down`, per-child
-`margin-top`), so nothing lines up like a form.
+**Layout law:** every main screen is a *menu*: horizontal rails (`.rail`),
+tab-switched groups and grids. Content sits on the grid; nothing is rotated or
+knocked off-line (`.tilt-*`, `.nudge-*`, `.bleed-*` are inert).
 
 ## 4c. Choreography
 
-- `Reveal.svelte` drifts blocks in as they enter the viewport (up / left /
-  right / scale / tilt), staggered by index. It always carries a visibility
-  safety net: content must never stay invisible if observers fail.
-- Modals (`Modal.svelte`) are **centred floating panels**. Side drawers are
-  not used anywhere in this product.
-- `Motif.svelte` scatters CSS-drawn Japanese objects (torii, koi, lantern,
-  sakura, fan, daruma, cloud, onigiri, wave) around every screen at odd
-  angles and low opacity. Each page gets its own motifs, matched to its
-  subject.
+- `Reveal.svelte` drifts blocks in as they enter the viewport, staggered by
+  index, with a visibility safety net: content must never stay invisible.
+- Modals (`Modal.svelte`) are centred glass sheets. No side drawers.
+- `Motif.svelte` scatters CSS-drawn Japanese objects at low opacity. They
+  decorate; they never carry information.
 
 ## 5. Iconography
 
@@ -198,9 +202,14 @@ One family only: `src/lib/components/Icon.svelte`.
 
 All keyframes live in `src/lib/styles/animations.css`, prefixed `zk-`.
 
-- Motion is ambient and slow: floating, swaying, drifting, blinking, breathing.
-- Feedback motion is short and physical: `zk-pop`, `zk-shake`, `zk-hop`.
-- Easing: `--ease-out` for entrances, `--ease-spring` for interactions.
+- Ambient motion is slow and small: floating, swaying, blinking, breathing.
+- Interaction motion is short and physical, in the iOS manner: press = scale
+  0.97, release settles with `--ease-ios` (`cubic-bezier(.32,.72,0,1)`), no
+  bounce on surfaces. `--ease-spring` is for Zeko and small pops only.
+- Wrong answers: a soft shake plus a ring. Right answers: a soft ring. No
+  heavy coloured slabs.
+- Durations come from `--t-fast / --t-base / --t-slow`. Theme changes fade the
+  colours (`--t-slow`).
 - `prefers-reduced-motion` reduces every duration to ~0 in `tokens.css`.
   This must never be bypassed.
 
@@ -236,3 +245,27 @@ teaches.
   grid) — never new colour values, radii or shadows.
 - Everything must work at 400px wide. The page never scrolls horizontally;
   wide tables scroll inside their own `.scroll` container.
+
+---
+
+## 9. Staying distinctive — the anti-generic rules
+
+These exist so the app never drifts into a stock template.
+
+1. **One accent.** Wedgewood is the only accent. Aqua is a quiet support colour.
+   Hanko appears only for errors and the seal.
+2. **Japanese is part of the layout.** Every screen carries its kanji eyebrow
+   and `.jp` labels in Zen Maru; they are never swapped for system text.
+3. **Zeko is a character, not a logo.** He reacts, is poked, and is never
+   recoloured, restyled or used as a decorative sticker.
+4. **Say less.** One title per screen, no subtitle that repeats it, no stat
+   shown in two places, no instruction after the first answer. If a line does
+   not help the learner play, it goes.
+5. **No stock UI.** No gradient buttons, no emoji, no confetti or badges, no
+   generic illustration packs, no purple, no card-with-icon-and-three-lines
+   marketing sections.
+6. **Quiet rewards.** Feedback is a ring and a short word; never a fanfare.
+7. **Glass is a surface, not a style.** Blur is used where content passes
+   behind it (header, sheets, panels). It is never stacked on blur.
+8. **Hierarchy by space.** If a screen needs a border or a box to feel
+   organised, fix the spacing first.

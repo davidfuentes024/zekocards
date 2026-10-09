@@ -123,9 +123,9 @@
 		font-family: var(--font-jp);
 		font-size: 4rem;
 		border-radius: var(--r-lg);
-		border: 3px solid var(--surface-line);
+		border: 1.5px solid var(--surface-line);
 		background: var(--bg-raised);
-		box-shadow: 0 6px 0 var(--surface-line-strong);
+		box-shadow: 0 var(--lift-play) 0 var(--surface-line-strong);
 		color: var(--ink-strong);
 		animation: zk-pop var(--t-base) var(--ease-spring);
 	}

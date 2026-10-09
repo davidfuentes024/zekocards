@@ -39,9 +39,8 @@
 	</button>
 
 	<div class="under">
-		<span class="tag">{label}</span>
-		<button class="again" onclick={play}>
-			<Icon name="refresh" size={15} /> play again
+		<button class="again" onclick={play} aria-label="Play again" title={label}>
+			<Icon name="refresh" size={16} />
 		</button>
 	</div>
 
@@ -73,7 +72,7 @@
 		background: var(--cello);
 		color: var(--mint);
 		cursor: pointer;
-		box-shadow: 0 7px 0 var(--cello-ink);
+		box-shadow: 0 var(--lift-play) 0 var(--cello-ink);
 		transition:
 			transform 100ms var(--ease-out),
 			box-shadow 100ms var(--ease-out);
@@ -83,15 +82,15 @@
 		height: 118px;
 	}
 	.speaker:active {
-		transform: translateY(6px);
-		box-shadow: 0 1px 0 var(--cello-ink);
+		transform: translateY(var(--lift-play)) scale(0.98);
+		box-shadow: 0 var(--lift-play) 0 var(--cello-ink);
 	}
 
 	.ripple {
 		position: absolute;
 		inset: -8px;
 		border-radius: var(--r-xl);
-		border: 3px solid var(--aqua);
+		border: 1.5px solid var(--aqua);
 		opacity: 0.5;
 		animation: zk-glow-ring 2.4s var(--ease-out) infinite;
 		pointer-events: none;
@@ -113,10 +112,10 @@
 		align-items: center;
 		gap: 5px;
 		padding: 0.35em 0.8em;
-		border: 2px solid var(--surface-line);
+		border: 1.5px solid var(--surface-line);
 		border-radius: var(--r-tab);
 		background: var(--bg-raised);
-		box-shadow: 0 3px 0 var(--surface-line);
+		box-shadow: 0 var(--lift-play) 0 var(--surface-line);
 		font-family: var(--font-display);
 		font-size: var(--fs-xs);
 		font-weight: 800;
@@ -124,7 +123,7 @@
 		cursor: pointer;
 	}
 	.again:active {
-		transform: translateY(3px);
+		transform: translateY(var(--lift-play)) scale(0.98);
 		box-shadow: none;
 	}
 

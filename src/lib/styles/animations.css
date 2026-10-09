@@ -51,14 +51,25 @@
 }
 
 @keyframes zk-rise {
-	from { opacity: 0; transform: translateY(16px); }
+	from { opacity: 0; transform: translateY(12px); }
 	to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes zk-pop {
-	0% { transform: scale(0.86); opacity: 0; }
-	60% { transform: scale(1.04); }
+	0% { transform: scale(0.94); opacity: 0; }
+	60% { transform: scale(1.015); }
 	100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes zk-fade {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+/* a sheet rises from below and settles; no overshoot */
+@keyframes zk-sheet {
+	from { opacity: 0; transform: translateY(28px) scale(0.98); }
+	to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes zk-shake {
@@ -117,7 +128,7 @@
 }
 
 /* --- Utility classes --- */
-.anim-rise { animation: zk-rise var(--t-slow) var(--ease-out) both; }
+.anim-rise { animation: zk-rise var(--t-slow) var(--ease-ios) both; }
 .anim-pop { animation: zk-pop var(--t-base) var(--ease-spring) both; }
 .anim-shake { animation: zk-shake 420ms var(--ease-in-out); }
 .anim-float { animation: zk-float 5.5s var(--ease-in-out) infinite; }

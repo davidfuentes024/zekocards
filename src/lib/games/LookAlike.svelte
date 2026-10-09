@@ -148,7 +148,7 @@
 		font-size: 1.9rem;
 		border-radius: var(--r-sm);
 		background: var(--bg-tint);
-		border: 2px solid var(--surface-line);
+		border: 1.5px solid var(--surface-line);
 		color: var(--ink-muted);
 	}
 	.note {
@@ -173,9 +173,9 @@
 		font-family: var(--font-jp);
 		font-size: 3.6rem;
 		border-radius: var(--r-lg);
-		border: 3px solid var(--surface-line);
+		border: 1.5px solid var(--surface-line);
 		background: var(--bg-raised);
-		box-shadow: 0 6px 0 var(--surface-line-strong);
+		box-shadow: 0 var(--lift-play) 0 var(--surface-line-strong);
 		color: var(--ink-strong);
 	}
 	.to {

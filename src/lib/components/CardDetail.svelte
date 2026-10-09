@@ -173,7 +173,7 @@
 		gap: var(--s-4);
 		padding: var(--s-3) var(--s-4);
 		background: var(--bg-tint);
-		border: 2px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 		border-radius: var(--r-md);
 		margin-bottom: var(--s-5);
 	}

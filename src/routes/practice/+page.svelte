@@ -40,11 +40,8 @@
 	<div class="wrap wrap--wide">
 		<div class="top">
 			<div>
-				<span class="eyebrow">Training hall · 道場</span>
-				<h1>Same sounds.<br /><em>Nine angles.</em></h1>
-				<p class="lede">
-					Built from the {$selectionSummary.sounds} sound{$selectionSummary.sounds === 1 ? '' : 's'} you picked.
-				</p>
+				<span class="eyebrow">道場</span>
+				<h1>Training hall</h1>
 
 				<div class="difficulty panel">
 					<DifficultyBoard />
@@ -80,7 +77,6 @@
 			<a class="hero-tile" href="/practice/{featured.id}">
 				<div class="ht-icon"><Icon name={featured.icon} size={40} /></div>
 				<div class="ht-body">
-					<span class="eyebrow">Start here</span>
 					<h2>{featured.title} <span class="jp">{featured.jp}</span></h2>
 					<p>{featured.blurb}</p>
 				</div>
@@ -140,11 +136,6 @@
 		line-height: 1.02;
 		margin-block: var(--s-2) var(--s-3);
 	}
-	.top h1 em {
-		font-style: normal;
-		color: var(--wedge);
-	}
-
 	.controls {
 		display: flex;
 		gap: var(--s-3);
@@ -158,7 +149,7 @@
 		gap: 4px;
 		border-radius: var(--r-md);
 		background: var(--bg-tint);
-		border: 2px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 	}
 	.seg-btn {
 		display: flex;
@@ -180,8 +171,8 @@
 	}
 	.seg-btn.is-on {
 		background: var(--cello);
-		color: #fff;
-		box-shadow: 0 3px 0 var(--cello-ink);
+		color: var(--on-accent);
+		box-shadow: var(--sh-1);
 	}
 
 	/* featured */
@@ -193,10 +184,10 @@
 		padding: var(--s-5) var(--s-6);
 		margin-bottom: var(--s-5);
 		border-radius: var(--r-xl);
-		border: 3px solid var(--cello);
+		border: 1px solid var(--cello);
 		background: var(--cello);
 		color: var(--mint);
-		box-shadow: 0 8px 0 var(--cello-ink);
+		box-shadow: var(--sh-1);
 		overflow: hidden;
 		transition:
 			transform 140ms var(--ease-spring),
@@ -204,11 +195,11 @@
 	}
 	.hero-tile:hover {
 		transform: translateY(-5px);
-		box-shadow: 0 13px 0 var(--cello-ink);
+		box-shadow: var(--sh-1);
 	}
 	.hero-tile:active {
-		transform: translateY(3px);
-		box-shadow: 0 3px 0 var(--cello-ink);
+		transform: scale(0.97);
+		box-shadow: var(--sh-1);
 	}
 	.ht-icon {
 		display: grid;
@@ -219,19 +210,16 @@
 		border-radius: var(--r-lg);
 		background: var(--aqua);
 		color: var(--cello);
-		box-shadow: 0 5px 0 var(--aqua-deep);
+		box-shadow: var(--sh-1);
 	}
 	.ht-body h2 {
-		color: #fff;
+		color: var(--on-accent);
 		font-size: var(--fs-2xl);
 		margin-block: 2px;
 	}
 	.ht-body .jp {
 		font-family: var(--font-jp);
 		font-size: var(--fs-md);
-		color: var(--aqua);
-	}
-	.ht-body .eyebrow {
 		color: var(--aqua);
 	}
 	.ht-body p {
@@ -274,7 +262,7 @@
 	.game.tone-ink {
 		background: var(--bg-raised);
 		border-color: var(--cello);
-		box-shadow: 0 6px 0 var(--cello);
+		box-shadow: var(--sh-1);
 	}
 	.game.locked {
 		opacity: 0.6;
@@ -287,9 +275,9 @@
 		margin-bottom: var(--s-3);
 		border-radius: var(--r-md);
 		background: var(--bg-raised);
-		border: 2px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 		color: var(--wedge-deep);
-		box-shadow: 0 4px 0 var(--surface-line);
+		box-shadow: var(--sh-1);
 	}
 	.game strong {
 		font-family: var(--font-display);

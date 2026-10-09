@@ -28,9 +28,10 @@
 		position: fixed;
 		inset: 0;
 		z-index: 40;
-		background: rgba(19, 39, 64, 0.42);
-		backdrop-filter: blur(3px);
-		animation: zk-rise 200ms var(--ease-out);
+		background: rgba(10, 20, 36, 0.4);
+		-webkit-backdrop-filter: blur(8px);
+		backdrop-filter: blur(8px);
+		animation: zk-fade var(--t-base) var(--ease-ios);
 	}
 
 	.shell {
@@ -49,11 +50,13 @@
 		width: min(var(--w), 100%);
 		max-height: min(88dvh, 900px);
 		padding: var(--s-6);
-		background: var(--bg-raised);
-		border: 3px solid var(--cello);
+		background: var(--glass-fill);
+		-webkit-backdrop-filter: saturate(180%) blur(30px);
+		backdrop-filter: saturate(180%) blur(30px);
+		border: 0.5px solid var(--glass-line);
 		border-radius: var(--r-xl);
-		box-shadow: 0 10px 0 var(--cello-ink), var(--sh-3);
-		animation: zk-pop 280ms var(--ease-spring);
+		box-shadow: var(--sh-3);
+		animation: zk-sheet var(--t-slow) var(--ease-ios);
 	}
 
 	.close {
@@ -64,17 +67,15 @@
 		place-items: center;
 		width: 42px;
 		height: 42px;
-		border: 2px solid var(--surface-line);
-		border-radius: var(--r-md);
-		background: var(--bg-raised);
-		color: var(--cello);
+		border: 0;
+		border-radius: var(--r-full);
+		background: var(--bg-sunken);
+		color: var(--ink-muted);
 		cursor: pointer;
-		box-shadow: 0 3px 0 var(--surface-line);
-		transition: transform 90ms var(--ease-out);
+		transition: transform var(--t-base) var(--ease-ios);
 	}
 	.close:active {
-		transform: translateY(3px);
-		box-shadow: none;
+		transform: scale(0.92);
 	}
 
 	@media (max-width: 640px) {

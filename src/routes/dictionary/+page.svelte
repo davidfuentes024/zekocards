@@ -78,8 +78,8 @@
 	<div class="wrap wrap--wide">
 		<div class="top">
 			<div>
-				<span class="eyebrow">Dictionary · 辞書</span>
-				<h1>{WORDS.length} words,<br /><em>all spelled in kana.</em></h1>
+				<span class="eyebrow">辞書</span>
+				<h1>Dictionary</h1>
 			</div>
 
 			<div class="searchbox">
@@ -179,7 +179,7 @@
 			<Pager bind:page {pages} onChange={turned} />
 		{:else}
 			<div class="empty panel">
-				<ZekoSpeak size={130} mood="think" lines={['Nothing matches that yet.']} />
+				<ZekoSpeak size={130} mood="think" always lines={['Nothing matches that yet.']} />
 				<p class="muted">
 					If “only my selection” is on, add a column or two on the Cards page — the dictionary grows
 					every time you unlock a sound.
@@ -223,11 +223,6 @@
 		line-height: 1.03;
 		margin-top: var(--s-2);
 	}
-	.top h1 em {
-		font-style: normal;
-		color: var(--wedge);
-	}
-
 	.searchbox {
 		position: relative;
 		display: flex;
@@ -243,7 +238,7 @@
 		font-family: var(--font-display);
 		font-size: var(--fs-md);
 		border-width: 3px;
-		box-shadow: 0 5px 0 var(--surface-line);
+		box-shadow: var(--sh-1);
 	}
 
 	.filters {
@@ -259,7 +254,7 @@
 		gap: 4px;
 		border-radius: var(--r-md);
 		background: var(--bg-tint);
-		border: 2px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 	}
 	.seg-btn {
 		padding: 0.45em 0.9em;
@@ -278,8 +273,8 @@
 	}
 	.seg-btn.is-on {
 		background: var(--cello);
-		color: #fff;
-		box-shadow: 0 3px 0 var(--cello-ink);
+		color: var(--on-accent);
+		box-shadow: var(--sh-1);
 	}
 	.result {
 		margin-left: auto;
@@ -305,9 +300,9 @@
 		height: 104px;
 		padding: var(--s-2);
 		border-radius: var(--r-md);
-		border: 2px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 		background: var(--bg-raised);
-		box-shadow: 0 5px 0 var(--surface-line);
+		box-shadow: var(--sh-1);
 		color: var(--wedge-deep);
 		cursor: pointer;
 		transition:
@@ -317,11 +312,11 @@
 	}
 	.topic:hover {
 		transform: translateY(-3px);
-		box-shadow: 0 8px 0 var(--surface-line);
+		box-shadow: var(--sh-1);
 	}
 	.topic:active {
-		transform: translateY(3px);
-		box-shadow: 0 2px 0 var(--surface-line);
+		transform: scale(0.97);
+		box-shadow: var(--sh-1);
 	}
 	.topic span {
 		font-family: var(--font-display);
@@ -337,7 +332,7 @@
 	.topic.is-on {
 		background: var(--aqua);
 		border-color: var(--aqua-deep);
-		box-shadow: 0 5px 0 var(--aqua-deep);
+		box-shadow: var(--sh-1);
 	}
 
 	/* entries */
@@ -352,9 +347,9 @@
 		gap: var(--s-3);
 		padding: var(--s-3) var(--s-4);
 		background: var(--bg-raised);
-		border: 2px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 		border-radius: var(--r-md);
-		box-shadow: 0 5px 0 var(--surface-line);
+		box-shadow: var(--sh-1);
 		transition:
 			transform 120ms var(--ease-spring),
 			box-shadow 120ms var(--ease-out),
@@ -362,7 +357,7 @@
 	}
 	.entry:hover {
 		transform: translateY(-3px);
-		box-shadow: 0 8px 0 var(--surface-line);
+		box-shadow: var(--sh-1);
 		border-color: var(--aqua-deep);
 	}
 	.entry.kata {
@@ -411,16 +406,16 @@
 		width: 38px;
 		height: 38px;
 		flex: none;
-		border: 2px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 		border-radius: var(--r-sm);
 		background: var(--bg-raised);
 		color: var(--wedge-deep);
 		cursor: pointer;
-		box-shadow: 0 3px 0 var(--surface-line);
+		box-shadow: var(--sh-1);
 		transition: transform 100ms var(--ease-out);
 	}
 	.speak:active {
-		transform: translateY(3px);
+		transform: scale(0.97);
 		box-shadow: none;
 	}
 

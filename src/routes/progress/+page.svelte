@@ -8,6 +8,7 @@
 	import { stats, totals, overall, dayStreak, last30, MAX_LEVEL } from '$lib/stores/progress.js';
 	import { anchors, anchorCount, clearAnchor } from '$lib/stores/associations.js';
 	import { settings, updateSetting } from '$lib/stores/settings.js';
+	import { theme } from '$lib/stores/theme.js';
 	import { script } from '$lib/stores/selection.js';
 	import { clearAll } from '$lib/stores/persisted.js';
 
@@ -72,8 +73,8 @@
 	<div class="wrap wrap--wide">
 		<div class="top">
 			<div>
-				<span class="eyebrow">Progress · 記録</span>
-				<h1>Everything you drilled,<br /><em>kept in this browser.</em></h1>
+				<span class="eyebrow">記録</span>
+				<h1>Progress</h1>
 			</div>
 			<ZekoSpeak
 				size={150}
@@ -206,6 +207,14 @@
 				{/if}
 			{:else}
 				<div class="settings">
+					<div class="opt range">
+						<span>Appearance</span>
+						<div class="seg-set" role="group" aria-label="Appearance">
+							{#each [['system', 'Automatic'], ['light', 'Light'], ['dark', 'Dark']] as [id, label]}
+								<button type="button" class:is-on={$theme === id} aria-pressed={$theme === id} onclick={() => theme.set(id)}>{label}</button>
+							{/each}
+						</div>
+					</div>
 					<label class="opt">
 						<input type="checkbox" checked={$settings.petals} onchange={(e) => updateSetting('petals', e.currentTarget.checked)} />
 						<span>Falling petals</span>
@@ -271,11 +280,6 @@
 		line-height: 1.03;
 		margin-top: var(--s-2);
 	}
-	.top h1 em {
-		font-style: normal;
-		color: var(--wedge);
-	}
-
 	.scores {
 		display: grid;
 		grid-template-columns: repeat(4, 1fr) 1.6fr;
@@ -292,7 +296,7 @@
 		height: 100%;
 		padding: var(--s-4) var(--s-3);
 		border-radius: var(--r-tile);
-		border: 2px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 		background: var(--bg-raised);
 		box-shadow: var(--edge);
 		color: var(--wedge-deep);
@@ -365,7 +369,7 @@
 	.board {
 		padding: var(--s-6) var(--s-5) var(--s-5);
 		border-radius: var(--r-tile);
-		border: 2px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 		background: var(--bg-raised);
 		box-shadow: var(--edge);
 	}
@@ -382,7 +386,7 @@
 		gap: var(--s-3);
 		padding: var(--s-2) var(--s-3);
 		background: var(--bg-tint);
-		border: 2px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 		border-radius: var(--r-md);
 	}
 	.glyph {
@@ -429,7 +433,7 @@
 		height: 36px;
 		border-radius: var(--r-sm);
 		background: var(--bg-tint);
-		border: 2px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 		overflow: hidden;
 	}
 	.dot::before {
@@ -461,7 +465,7 @@
 		gap: var(--s-3);
 		padding: var(--s-2) var(--s-3);
 		background: var(--bg-tint);
-		border: 2px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 		border-radius: var(--r-md);
 	}
 	.anchors strong {
@@ -506,6 +510,36 @@
 		align-items: flex-start;
 		gap: var(--s-1);
 	}
+	.seg-set {
+		display: inline-flex;
+		padding: 3px;
+		gap: 2px;
+		border-radius: var(--r-md);
+		background: var(--bg-sunken);
+		border: 1px solid var(--surface-line);
+	}
+	.seg-set button {
+		padding: 0.4em 0.9em;
+		border: 0;
+		border-radius: calc(var(--r-md) - 3px);
+		background: transparent;
+		color: var(--ink-muted);
+		font-weight: 600;
+		font-size: var(--fs-xs);
+		cursor: pointer;
+		transition:
+			background var(--t-base) var(--ease-ios),
+			color var(--t-base) var(--ease-ios),
+			transform var(--t-base) var(--ease-ios);
+	}
+	.seg-set button:active {
+		transform: scale(0.96);
+	}
+	.seg-set button.is-on {
+		background: var(--bg-raised);
+		color: var(--ink-strong);
+		box-shadow: var(--sh-1);
+	}
 	.opt.range input {
 		width: 100%;
 		accent-color: var(--wedge);
@@ -524,7 +558,6 @@
 	}
 	.danger {
 		--btn-bg: var(--hanko);
-		--btn-edge: #9d422f;
 		--btn-fg: #fff;
 	}
 

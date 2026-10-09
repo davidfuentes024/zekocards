@@ -54,12 +54,8 @@
 	<div class="wrap wrap--wide">
 		<div class="top">
 			<div>
-				<span class="eyebrow">Kanji · 漢字</span>
-				<h1>{KANJI.length} characters,<br /><em>read through kana.</em></h1>
-				<p class="lede">
-					On readings in katakana, kun readings in hiragana — the way a Japanese dictionary prints
-					them. Browsing is kana practice.
-				</p>
+				<span class="eyebrow">漢字</span>
+				<h1>Kanji</h1>
 			</div>
 
 			<ZekoSpeak
@@ -173,11 +169,6 @@
 		line-height: 1.03;
 		margin-block: var(--s-2) var(--s-3);
 	}
-	.top h1 em {
-		font-style: normal;
-		color: var(--wedge);
-	}
-
 	.bar {
 		display: flex;
 		align-items: center;
@@ -186,7 +177,7 @@
 		padding: var(--s-3);
 		margin-bottom: var(--s-5);
 		border-radius: var(--r-tile);
-		border: 2px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 		background: var(--bg-raised);
 		box-shadow: var(--edge);
 	}
@@ -211,7 +202,7 @@
 		gap: 4px;
 		border-radius: var(--r-md);
 		background: var(--bg-tint);
-		border: 2px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 	}
 	.seg-btn {
 		padding: 0.45em 0.95em;
@@ -226,8 +217,8 @@
 	}
 	.seg-btn.is-on {
 		background: var(--cello);
-		color: #fff;
-		box-shadow: 0 3px 0 var(--cello-ink);
+		color: var(--on-accent);
+		box-shadow: var(--sh-1);
 	}
 
 	.grid {
@@ -242,9 +233,9 @@
 		width: 100%;
 		padding: var(--s-3) var(--s-2);
 		background: var(--bg-raised);
-		border: 3px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 		border-radius: var(--r-md);
-		box-shadow: 0 5px 0 var(--surface-line-strong);
+		box-shadow: var(--sh-1);
 		cursor: pointer;
 		transition:
 			transform 120ms var(--ease-spring),
@@ -253,17 +244,17 @@
 	}
 	.kt:hover {
 		transform: translateY(-4px) rotate(-1deg);
-		box-shadow: 0 9px 0 var(--surface-line-strong);
+		box-shadow: var(--sh-1);
 		border-color: var(--aqua-deep);
 	}
 	.kt:active {
-		transform: translateY(3px);
-		box-shadow: 0 2px 0 var(--surface-line-strong);
+		transform: scale(0.97);
+		box-shadow: var(--sh-1);
 	}
 	.kt.is-on {
 		background: var(--aqua-soft);
 		border-color: var(--cello);
-		box-shadow: 0 5px 0 var(--cello);
+		box-shadow: var(--sh-1);
 	}
 	.glyph {
 		font-family: var(--font-jp);
@@ -316,7 +307,7 @@
 		padding: 0.3em 0.7em;
 		border-radius: var(--r-tab);
 		background: var(--bg-tint);
-		border: 2px solid var(--surface-line);
+		border: 1px solid var(--surface-line);
 	}
 	.rd small {
 		font-size: var(--fs-2xs);

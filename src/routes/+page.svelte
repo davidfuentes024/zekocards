@@ -6,51 +6,10 @@
 	import Motif from '$lib/components/Motif.svelte';
 	import Reveal from '$lib/components/Reveal.svelte';
 	import Modal from '$lib/components/Modal.svelte';
-	import { selectionSummary } from '$lib/stores/selection.js';
-	import { overall, dayStreak } from '$lib/stores/progress.js';
-	import { anchorCount } from '$lib/stores/associations.js';
-	import { WORDS } from '$lib/data/dictionary.js';
-	import { ALL_SOUNDS } from '$lib/data/kana.js';
-	import { KANJI } from '$lib/data/kanji.js';
 	import { GAMES } from '$lib/data/games.js';
 
 	let letterOpen = $state(false);
 
-	const STEPS = [
-		{
-			n: '01',
-			title: 'Pick a column',
-			jp: '選ぶ',
-			motif: 'torii',
-			text: 'The tables are laid out the way Japanese organises them. Turn on あ and か and the whole app narrows to those ten sounds.',
-			href: '/cards',
-			cta: 'Open the cards',
-			icon: 'cards',
-			tone: 'aqua'
-		},
-		{
-			n: '02',
-			title: 'Anchor it yourself',
-			jp: '連想',
-			motif: 'sakura',
-			text: 'Every card has a blank line. Write the word that makes the shape stick — then Zekocards quizzes you on your own handwriting.',
-			href: '/practice/anchor',
-			cta: 'Anchor drill',
-			icon: 'pencil',
-			tone: 'ink'
-		},
-		{
-			n: '03',
-			title: 'Then repeat. A lot.',
-			jp: '繰り返し',
-			motif: 'daruma',
-			text: 'Answers are typed, or picked from every sound you study at once. Miss one and you type the right reading before moving on.',
-			href: '/practice',
-			cta: 'See the drills',
-			icon: 'target',
-			tone: 'solid'
-		}
-	];
 </script>
 
 <svelte:head>
@@ -73,10 +32,7 @@
 				Japanese sound<br />
 				<em>the stubborn way.</em>
 			</h1>
-			<p class="lede">
-				A card game for hiragana, katakana and kanji. Choose your columns — every word, drill and
-				example is rebuilt from exactly those sounds.
-			</p>
+			<p class="lede">Pick your sounds. Every drill is built from exactly those.</p>
 			<div class="cta">
 				<a class="btn btn--xl" href="/cards">
 					<Icon name="cards" size={22} /> Choose your cards
@@ -84,12 +40,6 @@
 				<a class="btn btn--soft btn--xl" href="/practice">
 					<Icon name="target" size={22} /> Training hall
 				</a>
-			</div>
-			<div class="facts">
-				<span><strong>{ALL_SOUNDS.length}</strong> sounds</span>
-				<span><strong>{WORDS.length}</strong> words</span>
-				<span><strong>{KANJI.length}</strong> kanji</span>
-				<span><strong>{GAMES.length}</strong> drills</span>
 			</div>
 		</div>
 
@@ -108,35 +58,6 @@
 		</div>
 	</div>
 
-	<a class="cue" href="#how" aria-label="Scroll down">
-		<span>keep going</span>
-		<Icon name="chevronDown" size={20} />
-	</a>
-</section>
-
-<!-- ============ HOW IT WORKS ============ -->
-<section class="section wrap wrap--wide steps" id="how">
-	<Reveal from="left">
-		<h2 class="steps-title">Three moves,<br /><em>then repetition.</em></h2>
-	</Reveal>
-
-	<div class="step-row">
-		{#each STEPS as s, i}
-			<Reveal from={i === 1 ? 'up' : i === 0 ? 'left' : 'right'} delay={i * 120} distance={70}>
-				<article class="step step--{s.tone}" style="--i:{i}">
-					<div class="step-motif"><Motif name={s.motif} size={92} rotate={i % 2 ? 8 : -8} /></div>
-					<span class="num">{s.n}</span>
-					<h3>{s.title}</h3>
-					<span class="jp">{s.jp}</span>
-					<p>{s.text}</p>
-					<a class="btn {s.tone === 'aqua' ? 'btn--soft' : s.tone === 'ink' ? 'btn--ink' : ''}" href={s.href}>
-						<Icon name={s.icon} size={18} />
-						{s.cta}
-					</a>
-				</article>
-			</Reveal>
-		{/each}
-	</div>
 </section>
 
 <!-- ============ DRILLS RAIL ============ -->
@@ -145,12 +66,11 @@
 		<div class="menu-head">
 			<Reveal from="up">
 				<div>
-					<span class="eyebrow">Training hall · 道場</span>
-					<h2>Nine ways to grind<br />the same sounds.</h2>
+					<h2>Training hall</h2>
 				</div>
 			</Reveal>
 			<Reveal from="right">
-				<a class="btn btn--lg" href="/practice">Enter <Icon name="arrowRight" size={18} /></a>
+				<a class="btn" href="/practice">All drills <Icon name="arrowRight" size={18} /></a>
 			</Reveal>
 		</div>
 
@@ -167,47 +87,6 @@
 				</Reveal>
 			{/each}
 		</div>
-	</div>
-</section>
-
-<!-- ============ YOUR NUMBERS ============ -->
-<section class="section wrap wrap--wide">
-	<div class="stats">
-		<Reveal from="tilt">
-			<div class="stat stat--a">
-				<Icon name="target" size={26} />
-				<strong>{$selectionSummary.sounds}</strong>
-				<span>sounds selected</span>
-			</div>
-		</Reveal>
-		<Reveal from="tilt" delay={90}>
-			<div class="stat stat--b">
-				<Icon name="scroll" size={26} />
-				<strong>{$selectionSummary.words}</strong>
-				<span>words unlocked</span>
-			</div>
-		</Reveal>
-		<Reveal from="tilt" delay={180}>
-			<div class="stat stat--c">
-				<Icon name="star" size={26} />
-				<strong>{$overall.mastered}</strong>
-				<span>sounds mastered</span>
-			</div>
-		</Reveal>
-		<Reveal from="tilt" delay={270}>
-			<div class="stat stat--d">
-				<Icon name="flame" size={26} />
-				<strong>{$dayStreak}</strong>
-				<span>day streak</span>
-			</div>
-		</Reveal>
-		<Reveal from="tilt" delay={360}>
-			<div class="stat stat--e">
-				<Icon name="pencil" size={26} />
-				<strong>{$anchorCount}</strong>
-				<span>anchors written</span>
-			</div>
-		</Reveal>
 	</div>
 </section>
 
@@ -368,122 +247,12 @@
 		margin-top: var(--s-5);
 	}
 
-	.facts {
-		display: flex;
-		gap: var(--s-5);
-		flex-wrap: wrap;
-		margin-top: var(--s-6);
-		font-size: var(--fs-xs);
-		font-weight: 600;
-		color: var(--ink-muted);
-	}
-	.facts strong {
-		font-family: var(--font-display);
-		font-size: var(--fs-xl);
-		color: var(--ink-strong);
-		margin-right: 5px;
-	}
-
 	.buddy {
 		justify-self: end;
 	}
 
-	.cue {
-		position: absolute;
-		left: 50%;
-		bottom: var(--s-5);
-		transform: translateX(-50%);
-		display: grid;
-		justify-items: center;
-		gap: 2px;
-		z-index: 3;
-		font-size: var(--fs-2xs);
-		font-weight: 700;
-		letter-spacing: var(--tracking-caps);
-		text-transform: uppercase;
-		color: var(--wedge);
-		animation: zk-float 2.6s var(--ease-in-out) infinite;
-	}
-
 	/* ================= STEPS ================= */
-	.steps-title {
-		font-size: var(--fs-3xl);
-		margin-bottom: var(--s-6);
-	}
-	.steps-title em {
-		font-style: normal;
-		color: var(--wedge);
-	}
-
-	.step-row {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: var(--s-5);
-		align-items: start;
-	}
 	/* deliberately off the grid line */
-	.step-row > :global(*:nth-child(1)) {
-		margin-top: var(--s-6);
-	}
-	.step-row > :global(*:nth-child(3)) {
-		margin-top: var(--s-7);
-	}
-
-	.step {
-		position: relative;
-		display: grid;
-		gap: var(--s-2);
-		padding: var(--s-6) var(--s-5) var(--s-5);
-		border-radius: var(--r-tile);
-		border: 3px solid var(--cello);
-		background: var(--bg-raised);
-		box-shadow: 0 8px 0 var(--cello);
-		overflow: hidden;
-		transition: transform 160ms var(--ease-spring);
-	}
-	.step:hover {
-		transform: translateY(-6px) rotate(-0.6deg);
-	}
-	.step--aqua {
-		background: var(--aqua-soft);
-	}
-	.step--ink {
-		background: var(--bg-raised);
-	}
-
-	.step-motif {
-		position: absolute;
-		right: -14px;
-		top: -10px;
-		opacity: 0.5;
-	}
-
-	.num {
-		font-family: var(--font-display);
-		font-size: var(--fs-sm);
-		font-weight: 800;
-		letter-spacing: var(--tracking-caps);
-		color: var(--wedge);
-	}
-	.step h3 {
-		font-size: var(--fs-2xl);
-		line-height: 1.05;
-	}
-	.step .jp {
-		font-family: var(--font-jp);
-		font-size: var(--fs-sm);
-		color: var(--ink-muted);
-	}
-	.step p {
-		font-size: var(--fs-sm);
-		color: var(--ink-muted);
-		line-height: var(--lh-snug);
-		margin-block: var(--s-2) var(--s-3);
-	}
-	.step .btn {
-		justify-self: start;
-	}
-
 	/* ================= DRILLS ================= */
 	.drills {
 		margin-top: var(--s-8);
@@ -512,7 +281,7 @@
 		border-radius: var(--r-md);
 		background: var(--aqua-soft);
 		color: var(--wedge-deep);
-		box-shadow: 0 4px 0 var(--aqua);
+		box-shadow: var(--sh-1);
 	}
 	.game strong {
 		font-family: var(--font-display);
@@ -543,47 +312,6 @@
 	}
 
 	/* ================= STATS ================= */
-	.stats {
-		display: grid;
-		grid-template-columns: repeat(5, 1fr);
-		gap: var(--s-4);
-	}
-	.stats > :global(*:nth-child(even)) {
-		margin-top: var(--s-5);
-	}
-	.stat {
-		display: grid;
-		justify-items: center;
-		gap: 2px;
-		padding: var(--s-5) var(--s-3);
-		border-radius: var(--r-tile);
-		border: 2px solid var(--surface-line);
-		background: var(--bg-raised);
-		box-shadow: var(--edge);
-		text-align: center;
-		color: var(--wedge-deep);
-	}
-	.stat--a {
-		background: var(--aqua-soft);
-	}
-	.stat--c {
-		background: var(--mint);
-	}
-	.stat--e {
-		background: var(--aqua-soft);
-	}
-	.stat strong {
-		font-family: var(--font-display);
-		font-size: var(--fs-3xl);
-		line-height: 1;
-		color: var(--ink-strong);
-	}
-	.stat span {
-		font-size: var(--fs-xs);
-		font-weight: 600;
-		color: var(--ink-muted);
-	}
-
 	/* ================= LETTER ================= */
 	.letter-zone {
 		position: relative;
@@ -743,15 +471,6 @@
 	}
 
 	/* ================= RESPONSIVE ================= */
-	@media (max-width: 1080px) {
-		.step-row {
-			grid-template-columns: 1fr 1fr;
-		}
-		.stats {
-			grid-template-columns: repeat(3, 1fr);
-		}
-	}
-
 	@media (max-width: 900px) {
 		.hero {
 			min-height: auto;
@@ -768,21 +487,6 @@
 		.hero :global(.float-c),
 		.hero :global(.float-d) {
 			display: none;
-		}
-		.cue {
-			display: none;
-		}
-		.step-row {
-			grid-template-columns: 1fr;
-		}
-		.step-row > :global(*) {
-			margin-top: 0 !important;
-		}
-		.stats {
-			grid-template-columns: repeat(2, 1fr);
-		}
-		.stats > :global(*) {
-			margin-top: 0 !important;
 		}
 		.cols {
 			grid-template-columns: 1fr;

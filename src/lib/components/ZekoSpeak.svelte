@@ -11,18 +11,25 @@
 		motif = null,
 		motifSize = 70,
 		align = 'center',
+		always = false,
 		class: klass = ''
 	} = $props();
 
 	let index = $state(0);
 	let override = $state(null);
 	let poked = $state(0);
+	/* Zeko stays quiet until he is poked: no permanent speech on every screen. */
+	let spoken = $state(false);
+	let hideTimer;
 	const live = $derived(override ?? mood);
 
 	const MOODS = ['happy', 'cheer', 'think', 'read'];
 
 	function poke() {
 		poked += 1;
+		spoken = true;
+		clearTimeout(hideTimer);
+		hideTimer = setTimeout(() => (spoken = false), 4500);
 		index = (index + 1) % lines.length;
 		override = MOODS[poked % MOODS.length];
 		setTimeout(() => (override = null), 1400);
@@ -30,7 +37,7 @@
 </script>
 
 <div class="zs zs--{align} {klass}">
-	{#if lines.length}
+	{#if lines.length && (always || spoken)}
 		<p class="bubble" aria-live="polite">{lines[index]}</p>
 	{/if}
 	<div class="row">
@@ -61,7 +68,7 @@
 
 	.bubble {
 		max-width: 26ch;
-		animation: zk-pop 300ms var(--ease-spring);
+		animation: zk-pop var(--t-base) var(--ease-ios);
 	}
 
 	.row {

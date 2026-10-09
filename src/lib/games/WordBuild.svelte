@@ -176,13 +176,13 @@
 		border-style: solid;
 		border-color: var(--wedge);
 		background: var(--bg-raised);
-		box-shadow: 0 4px 0 var(--wedge-soft);
+		box-shadow: 0 var(--lift-play) 0 var(--wedge-soft);
 		animation: zk-pop var(--t-base) var(--ease-spring);
 	}
 	.solved .slot {
 		border-color: var(--ok);
 		background: var(--ok-bg);
-		box-shadow: 0 4px 0 var(--ok);
+		box-shadow: 0 var(--lift-play) 0 var(--ok);
 	}
 	.tools {
 		display: flex;
